@@ -174,17 +174,17 @@ module emu
 ///////// Default values for ports not used in this core /////////
 
 assign ADC_BUS  = 'Z;
-assign USER_OUT = '1;
 assign {UART_RTS, UART_TXD, UART_DTR} = 0;
 assign {SD_SCK, SD_MOSI, SD_CS} = 'Z;
 assign {SDRAM_DQ, SDRAM_A, SDRAM_BA, SDRAM_CLK, SDRAM_CKE, SDRAM_DQML, SDRAM_DQMH, SDRAM_nWE, SDRAM_nCAS, SDRAM_nRAS, SDRAM_nCS} = 'Z;
 assign {DDRAM_CLK, DDRAM_BURSTCNT, DDRAM_ADDR, DDRAM_DIN, DDRAM_BE, DDRAM_RD, DDRAM_WE} = '0;  
 
-assign VGA_SL = 0;
+//assign VGA_SL = 0;
 assign VGA_F1 = 0;
 assign VGA_SCALER  = 0;
 assign VGA_DISABLE = 0;
 assign HDMI_FREEZE = 0;
+assign FB_FORCE_BLANK = 0;
 
 assign AUDIO_S = 0;
 assign AUDIO_L = 0;
@@ -207,68 +207,80 @@ localparam CONF_STR = {
 	"A.CrystalCastles;;",
 	"-;",
 	"O[122:121],Aspect ratio,Original,Full Screen,[ARC1],[ARC2];",
-	"O[2],TV Mode,NTSC,PAL;",
-	"O[4:3],Noise,White,Red,Green,Blue;",
 	"-;",
 	"T[0],Reset;",
 	"R[0],Reset and close OSD;",
 	"V,v",`BUILD_DATE 
 };
 
-wire forced_scandoubler;
+////////////////////   HPS   /////////////////////
+
+wire        forced_scandoubler;
+wire        direct_video, video_rotated;
 wire   [1:0] buttons;
 wire [127:0] status;
 wire  [10:0] ps2_key;
+wire [21:0] gamma_bus;
 
 hps_io #(.CONF_STR(CONF_STR)) hps_io
 (
 	.clk_sys(clk_sys),
 	.HPS_BUS(HPS_BUS),
 	.EXT_BUS(),
-	.gamma_bus(),
 
 	.forced_scandoubler(forced_scandoubler),
+	.gamma_bus(gamma_bus),
+	.direct_video(direct_video),
+	.video_rotated(video_rotated),
 
 	.buttons(buttons),
 	.status(status),
-	.status_menumask({status[5]}),
+	.status_menumask({direct_video}),
 	
 	.ps2_key(ps2_key)
 );
 
 ///////////////////////   CLOCKS   ///////////////////////////////
 
-wire clk_sys;
+wire clk_sys, clk_game;
 pll pll
 (
 	.refclk(CLK_50M),
 	.rst(0),
-	.outclk_0(clk_sys)
+	.outclk_0(clk_sys),
+	.outclk_1(clk_game)
 );
 
 wire reset = RESET | status[0] | buttons[1];
 
 //////////////////////////////////////////////////////////////////
 
-wire [1:0] col = status[4:3];
-
 wire HBlank;
 wire HSync;
 wire VBlank;
 wire VSync;
-wire ce_pix;
-wire [7:0] video;
+reg ce_pix;
+wire [8:0] video;		// 3r3G3b
+
+
+arcade_video #(256,9) arcade_video
+(
+	.*,
+	.clk_video(clk_sys),
+	.RGB_in(video),
+	.HBlank(HBlank),
+	.VBlank(VBlank),
+	.HSync(HSync),
+	.VSync(VSync),
+	.fx(3'b000)
+);
+
 
 ccastles ccastles
 (
-	.clk(clk_sys),
-	.reset(reset),
+	.clk(clk_game),
+	.reset_n(~reset),
 	
-	.pal(status[2]),
-	.scandouble(forced_scandoubler),
-
-	.ce_pix(ce_pix),
-
 	.HBlank(HBlank),
 	.HSync(HSync),
 	.VBlank(VBlank),
@@ -277,18 +289,20 @@ ccastles ccastles
 	.video(video)
 );
 
-assign CLK_VIDEO = clk_sys;
-assign CE_PIXEL = ce_pix;
 
-assign VGA_DE = ~(HBlank | VBlank);
-assign VGA_HS = HSync;
-assign VGA_VS = VSync;
-assign VGA_G  = (!col || col == 2) ? video : 8'd0;
-assign VGA_R  = (!col || col == 1) ? video : 8'd0;
-assign VGA_B  = (!col || col == 3) ? video : 8'd0;
+//assign VGA_DE = ~(HBlank | VBlank);
+//assign VGA_HS = HSync;
+//assign VGA_VS = VSync;
 
-reg  [26:0] act_cnt;
-always @(posedge clk_sys) act_cnt <= act_cnt + 1'd1; 
-assign LED_USER    = act_cnt[26]  ? act_cnt[25:18]  > act_cnt[7:0]  : act_cnt[25:18]  <= act_cnt[7:0];
+
+assign USER_OUT = { reset, forced_scandoubler, ce_pix, VSync, VBlank, HSync, HBlank };
+
+reg [1:0] cnt;
+always @(posedge clk_sys) 
+begin
+   cnt <= cnt + 1;
+	ce_pix <= forced_scandoubler ? cnt[0] : cnt[1];
+end
+
 
 endmodule
