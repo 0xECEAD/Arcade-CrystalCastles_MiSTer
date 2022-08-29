@@ -6,3 +6,6 @@ set_global_assignment -name SYSTEMVERILOG_FILE rtl/HorSyncChain.v
 set_global_assignment -name SYSTEMVERILOG_FILE rtl/VertSyncChain.v
 set_global_assignment -name SYSTEMVERILOG_FILE rtl/Watchdog.v
 set_global_assignment -name SYSTEMVERILOG_FILE rtl/Microprocessor.v
+set_global_assignment -name SYSTEMVERILOG_FILE rtl/cpu_65c02.v
+set_global_assignment -name SYSTEMVERILOG_FILE rtl/alu.v
+set_global_assignment -name SYSTEMVERILOG_FILE rtl/ProgramMemory.v

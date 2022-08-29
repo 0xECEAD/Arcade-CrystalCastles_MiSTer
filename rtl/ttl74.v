@@ -144,6 +144,33 @@ endmodule
 endmodule	
 
 
+module rom2764 # 
+(
+   parameter INIT_FILE = "rom.txt"
+)
+ (
+   input clk,
+   input en,
+   input [12:0] addr,
+   output reg [7:0] data
+);
+
+   reg [7:0] mem [0:8192];
+
+   always @(posedge clk) 
+   begin
+      if (en == 1'b1) 
+         data <= mem[addr];
+   end
+
+   initial begin
+      $readmemh(INIT_FILE, mem);			// read hex values, one per line (use // for comment)
+   end
+
+endmodule	
+
+
+
 module ls193
 (
   input clr,			// async

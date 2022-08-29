@@ -15,7 +15,7 @@ module vertsyncchan(
 
    input HBLANK,HSYNC,
 
-   output VBLANK, VSYNC, COMPSYNCn,
+   output VBLANK, VSYNC, IRQCK,
    output [7:0] vcount
 );
 
@@ -68,10 +68,10 @@ module vertsyncchan(
       .clk(HBLANKn), 
       .d(w7K_8J), 
       
-      .q({IRQCLK,dmy0,w8J_8F,VBLANK}),
+      .q({IRQCK,dmy0,w8J_8F,VBLANK}),
       .n_q({dmy1,dmy2,VSYNC,VBLANKn})
    );
 
-   assign COMPSYNCn = HSYNC ^ w8J_8F;
+   //assign COMPSYNCn = HSYNC ^ w8J_8F;
    
 endmodule

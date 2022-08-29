@@ -179,12 +179,10 @@ assign {SD_SCK, SD_MOSI, SD_CS} = 'Z;
 assign {SDRAM_DQ, SDRAM_A, SDRAM_BA, SDRAM_CLK, SDRAM_CKE, SDRAM_DQML, SDRAM_DQMH, SDRAM_nWE, SDRAM_nCAS, SDRAM_nRAS, SDRAM_nCS} = 'Z;
 assign {DDRAM_CLK, DDRAM_BURSTCNT, DDRAM_ADDR, DDRAM_DIN, DDRAM_BE, DDRAM_RD, DDRAM_WE} = '0;  
 
-//assign VGA_SL = 0;
 assign VGA_F1 = 0;
 assign VGA_SCALER  = 0;
 assign VGA_DISABLE = 0;
 assign HDMI_FREEZE = 0;
-assign FB_FORCE_BLANK = 0;
 
 assign AUDIO_S = 0;
 assign AUDIO_L = 0;
@@ -216,7 +214,7 @@ localparam CONF_STR = {
 ////////////////////   HPS   /////////////////////
 
 wire        forced_scandoubler;
-wire        direct_video, video_rotated;
+wire        direct_video;
 wire   [1:0] buttons;
 wire [127:0] status;
 wire  [10:0] ps2_key;
@@ -231,7 +229,7 @@ hps_io #(.CONF_STR(CONF_STR)) hps_io
 	.forced_scandoubler(forced_scandoubler),
 	.gamma_bus(gamma_bus),
 	.direct_video(direct_video),
-	.video_rotated(video_rotated),
+	.video_rotated(1'b0),
 
 	.buttons(buttons),
 	.status(status),
@@ -290,17 +288,15 @@ ccastles ccastles
 );
 
 
-//assign VGA_DE = ~(HBlank | VBlank);
-//assign VGA_HS = HSync;
-//assign VGA_VS = VSync;
-
 
 assign USER_OUT = { reset, forced_scandoubler, ce_pix, VSync, VBlank, HSync, HBlank };
+assign LED_USER = forced_scandoubler;
+
 
 reg [1:0] cnt;
 always @(posedge clk_sys) 
 begin
-   cnt <= cnt + 1;
+   cnt <= cnt + 2'b01;
 	ce_pix <= forced_scandoubler ? cnt[0] : cnt[1];
 end
 
