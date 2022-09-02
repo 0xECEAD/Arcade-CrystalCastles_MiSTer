@@ -930,7 +930,7 @@ assign DIMUX = RDY1 ? DI : DIHOLD;
  */
 
 
-always @(posedge clk )
+always @(posedge clk or posedge reset)
     if( reset )
         IRHOLD_valid <= 0;
     else if( RDY ) begin
@@ -1098,7 +1098,7 @@ always @(posedge clk or posedge reset)
  * Additional control signals
  */
 
-always @(posedge clk)
+always @(posedge clk or posedge reset)
      if( reset )
          res <= 1;
      else if( state == DECODE )

@@ -8,7 +8,7 @@
 // count 256 lines,    233 visible
 
 
-module vertsyncchan(
+module VertSyncChan(
    
    input CLK10,
    input RESETn,
@@ -22,8 +22,7 @@ module vertsyncchan(
    wire w7P_7R;
    wire V1,V2,V4,V8;
    wire V16,V32,V64,V128;
-   wire HBLANKn;
-   wire IRQCLK,VBLANKn;
+   wire HBLANKn, VBLANKn;
    wire w8J_8F;
    wire [3:0] w7K_8J;
    wire dmy0,dmy1,dmy2;
@@ -33,8 +32,8 @@ module vertsyncchan(
    
    ls163 ic7P
    (
-      .n_load(1'b1),
-      .n_clr(RESETn),
+      .load_n(1'b1),
+      .clr_n(RESETn),
       .clk(HBLANKn),
       .p(4'b0000),   
       .ent(1'b1),
@@ -45,8 +44,8 @@ module vertsyncchan(
 
    ls163 ic7R
    (
-      .n_load(1'b1),
-      .n_clr(RESETn),
+      .load_n(1'b1),
+      .clr_n(RESETn),
       .clk(HBLANKn),
       .p(4'b0000),   
       .ent(w7P_7R),
@@ -54,22 +53,22 @@ module vertsyncchan(
       .q({V128,V64,V32,V16})
    );
 
-   rom82S129 ic7K
+   rom82S129 #(.INIT_FILE("82s129-136022-108.7k.rom")) ic7K
    (
       .clk(CLK10),
-      .addr(vcount),
-      .en(1'b1),
-      .data(w7K_8J)
+      .A(vcount),
+      .CE_n(1'b0),
+      .O(w7K_8J)
    );
 
    ls175 ic9Lb
    (
-      .n_clr(RESETn),
+      .clr_n(RESETn),
       .clk(HBLANKn), 
       .d(w7K_8J), 
       
       .q({IRQCK,dmy0,w8J_8F,VBLANK}),
-      .n_q({dmy1,dmy2,VSYNC,VBLANKn})
+      .q_n({dmy1,dmy2,VSYNC,VBLANKn})
    );
 
    //assign COMPSYNCn = HSYNC ^ w8J_8F;

@@ -1,28 +1,22 @@
-// Watchdog
-
-
-module watchdog(
-   
-   input WDIS,
+module Watchdog
+(
+	input reset_n,
+   input WDISn,
    input WDOGn,
    input VBLANK,
-   input DCOKn,
 
    output WDRESETn
 );
    
-   wire [3:0] count;
+   reg [3:0] count;
 
-   ls193 ic8M
-   (
-     .clr(DCOKn),
-     .n_load(~(~WDIS | ~WDOGn)),
-     .up(VBLANK),
-     .down(1'b1),
-     .p(4'b1000),
-     .q(count)
-   );
-   
-   assign WDRESETn = count[3];
+   always @(posedge VBLANK or negedge reset_n or negedge WDISn or negedge WDOGn)
+	begin
+	   if (reset_n == 1'b0 || WDISn == 1'b0 || WDOGn == 1'b0)
+			count <= 4'b0000;
+		else 
+			count <= count + 4'b0001;
+	end
+   assign WDRESETn = ~count[3];
 
 endmodule

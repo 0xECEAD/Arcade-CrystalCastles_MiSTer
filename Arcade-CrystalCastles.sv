@@ -184,9 +184,10 @@ assign VGA_SCALER  = 0;
 assign VGA_DISABLE = 0;
 assign HDMI_FREEZE = 0;
 
-assign AUDIO_S = 0;
-assign AUDIO_L = 0;
-assign AUDIO_R = 0;
+wire [7:0] AOUT;
+assign AUDIO_L = {AOUT,AOUT};
+assign AUDIO_R = AUDIO_L;
+assign AUDIO_S = 0; // unsigned PCM
 assign AUDIO_MIX = 0;
 
 assign LED_DISK = 0;
@@ -205,7 +206,11 @@ localparam CONF_STR = {
 	"A.CrystalCastles;;",
 	"-;",
 	"O[122:121],Aspect ratio,Original,Full Screen,[ARC1],[ARC2];",
+	"O1,WatchDog,Disable,Enable;",
+	"O2,Self Test Mode,Off,On;",
+	"O3,Cabinet,Upright,Cocktail;",
 	"-;",
+	"J1,Jump,Start 1P,Start 2P,Coin P1,Coin P2;",
 	"T[0],Reset;",
 	"R[0],Reset and close OSD;",
 	"V,v",`BUILD_DATE 
@@ -219,6 +224,7 @@ wire   [1:0] buttons;
 wire [127:0] status;
 wire  [10:0] ps2_key;
 wire [21:0] gamma_bus;
+wire [15:0] joystick_0,joystick_1;
 
 hps_io #(.CONF_STR(CONF_STR)) hps_io
 (
@@ -235,7 +241,9 @@ hps_io #(.CONF_STR(CONF_STR)) hps_io
 	.status(status),
 	.status_menumask({direct_video}),
 	
-	.ps2_key(ps2_key)
+	.ps2_key(ps2_key),
+	.joystick_0(joystick_0),
+	.joystick_1(joystick_1)
 );
 
 ///////////////////////   CLOCKS   ///////////////////////////////
@@ -258,14 +266,13 @@ wire HSync;
 wire VBlank;
 wire VSync;
 reg ce_pix;
-wire [8:0] video;		// 3r3G3b
-
+wire [8:0] rgb;		// 3r3G3b
 
 arcade_video #(256,9) arcade_video
 (
 	.*,
 	.clk_video(clk_sys),
-	.RGB_in(video),
+	.RGB_in(rgb),
 	.HBlank(HBlank),
 	.VBlank(VBlank),
 	.HSync(HSync),
@@ -273,23 +280,43 @@ arcade_video #(256,9) arcade_video
 	.fx(3'b000)
 );
 
+wire [5:0] test;
+wire m_jump1p  = joystick_0[4];
+wire m_start1p  = joystick_0[5];
+wire m_coin1p   = joystick_0[6];
+
+wire m_jump2p  = joystick_1[4];
+wire m_start2p  = joystick_1[5];
+wire m_coin2p   = joystick_1[6];
+
 
 ccastles ccastles
 (
 	.clk(clk_game),
 	.reset_n(~reset),
+   
+	.WDISn(status[1]),
+   .SELFTEST(status[2]),
+   .COCKTAILn(status[3]),
+	
+   .START1(m_start1p), .START2(m_start2p),
+   .JMP1(m_jump1p), .JMP2(m_jump2p),
+   .COINL(m_coin1p), .COINR(m_coin2p),
 	
 	.HBlank(HBlank),
 	.HSync(HSync),
 	.VBlank(VBlank),
 	.VSync(VSync),
 
-	.video(video)
+   .SOUT(AOUT),
+
+	.RGBout(rgb),
+   .test(test)
 );
 
 
 
-assign USER_OUT = { reset, forced_scandoubler, ce_pix, VSync, VBlank, HSync, HBlank };
+assign USER_OUT = { 1'b1, test };
 assign LED_USER = forced_scandoubler;
 
 
