@@ -302,7 +302,7 @@ module ccastles
       .BD(BD),
       .BA(BA[5:0]),
       
-      .MPI(1'b0), .MV0(1'b0), .MV1(1'b0), .MV2(1'b0),
+      .MPI(BA[6]), .MV0(BA[7]), .MV1(BA[3]), .MV2(vc[4]),
       .BIT(BIT),
       
       .o(clr_data)
@@ -334,9 +334,7 @@ module ccastles
       .pokey_to_cpu(pokey_to_cpu),
       .SOUT(SOUT)
    );
-   
-   // CoinCounterAndOutput
-   
+    
    PlayerSwitches ps
    (
       .BA9(BA[9]), 
@@ -345,6 +343,7 @@ module ccastles
       .SBD(sbus_to_cpu)
    );
      
+   wire COINCNTL_L;
    CoinCountOutput cco
    (
       .RESETn(reset_n), 
@@ -353,12 +352,12 @@ module ccastles
       .BD0(BD[0]),
       
       .BANK0n(BANK0n), .BANK1n(BANK1n), 
-      .COINCNTL_L(), .COINCNTLR(),
+      .COINCNTL_L(COINCNTL_L), .COINCNTLR(),
       .RECALLn(), .STORE(),
       .STARTLED2(STARTLED2), .LIGHTBULB(LIGHTBULB)
    );
 
    assign HBlank = HBLANK2;
-   assign test = { CRAMn, WDOGn, OUT0n, wd_reset_n, VBlank, HBlank };
+   assign test = { SELFTEST, START1, COINL, COINCNTL_L, VBlank, HBlank };
 
 endmodule

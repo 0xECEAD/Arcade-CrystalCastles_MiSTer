@@ -297,7 +297,7 @@ ccastles ccastles
 	.reset_n(~reset),
    
 	.WDISn(status[1]),
-   .SELFTEST(status[2]),
+   .SELFTEST(~status[2]),
    .COCKTAILn(status[3]),
 	
    .START1(m_start1p), .START2(m_start2p),
