@@ -26,7 +26,7 @@
 //  9C80-9CFF | 128 | 1001 1100 1xxx xxxx  | HSLDn        | 
 //  9C00-9C7F | 128 | 1001 1100 0xxx xxxx  | - recall?    | 
 
-//  0000-7FFF | 32k | 0000 1100 0xxx xxxx  | 
+//  0000-7FFF | 32k | 0000 1100 0xxx xxxx  |  
 
 
 

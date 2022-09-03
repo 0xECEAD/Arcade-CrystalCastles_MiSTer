@@ -26,7 +26,7 @@ module ccastles
    // Sound
    output [7:0]  SOUT,
    
-   // Debugging
+   // Debugging     
    output [5:0]  test	
 );
 
@@ -76,27 +76,37 @@ module ccastles
    wire H2 = hc[1];           // 1.25 MHz
    wire [7:0] rom_to_cpu, sbus_to_cpu, sram_to_cpu, bmr_to_cpu, dram_to_cpu, nvram_to_cpu, pokey_to_cpu;
    wire [7:0] bmw_to_dram;
-   reg [7:0] DI;
+   reg [7:0] DIprep, DIhold;
    wire [7:0] BD;
    wire [15:0] BA;
    wire BRWn, ROM2n, ROM1n, ROM0n, SBUSn;
 	wire DRWR,WRITEn;
    
-   always @(posedge H2) 
+   always @(negedge H2) 
    begin
-      if (BA[15] && NRn)            // 0xA000-0xFFFF
-         DI <= #1 rom_to_cpu;
-      else if (SRAMn == 1'b0)       // 0x8000-0x8FFF
-         DI <= #1 sram_to_cpu;
-      else if (IN0n == 1'b0)       // 0x9000-0x9BFF     // TODO split CIOn (pokey1/pokey2/IN0n/NVRAMn)
-         DI <= #1 sbus_to_cpu;
-      else if (CIOn == 1'b0)       // 0x9000-0x9BFF     // TODO split CIOn (pokey1/pokey2/IN0n/NVRAMn)
-         DI <= #1 pokey_to_cpu;
-      else if (BITRDn == 1'b0)
-         DI <= #1 bmr_to_cpu;       // 0x0002
-      else
-         DI <= #1 dram_to_cpu;      // 0x0000-0x7FFF
+      if (BA[15])
+         begin
+            if (NRn)               // 0xA000-0xFFFF
+               DIprep <= #1 rom_to_cpu;
+            else if (SRAMn == 1'b0)          // 0x8000-0x8FFF
+               DIprep <= #1 sram_to_cpu;
+            else if (NVRAMn == 1'b0)         // 0x9000-0x93FF
+               DIprep <= #1 nvram_to_cpu;
+            else if (IN0n == 1'b0)           // 0x9400-0x97FF
+               DIprep <= #1 sbus_to_cpu;
+            else if (CIOn == 1'b0)           // 0x9800-0x9BFF
+               DIprep <= #1 pokey_to_cpu;
+         end
+      else 
+         begin 
+            if (BITRDn == 1'b0)
+               DIprep <= #1 bmr_to_cpu;      // 0x0002
+            else
+               DIprep <= #1 dram_to_cpu;     // 0x0000-0x7FFF
+         end
    end
+   always @(posedge H2) DIhold <= #1 DIprep;
+   
 
    MicroProcessor cpu
    (
@@ -107,7 +117,7 @@ module ccastles
       .INTACKn(INTACKn),
       .IRQCK(IRQCK),
       
-      .data_to_cpu(DI),
+      .data_to_cpu(DIhold),
       .data_from_cpu(BD),
      
       .BA(BA),
@@ -241,6 +251,7 @@ module ccastles
    );
 
    wire [7:0] data_to_dram = !BITWRn ? bmw_to_dram : BD;
+   wire [3:0] BIT;
    DynamicRam dram
    (
       .clk(clk),
@@ -249,20 +260,39 @@ module ccastles
       .DRLn(DRLn), .DRHn(DRHn),
       .WP0n(WP0n), .WP1n(WP1n), .WP2n(WP2n), .WP3n(WP3n),
       .data_to_dram(data_to_dram), 
-      .data_from_dram(dram_to_cpu)
-      //. BIT2, BIT1, BIT0
+      .data_from_dram(dram_to_cpu),
+      .PLAYER2(PLAYER2), .CLK5n(CLK5n), .HL(HL),
+      .BIT(BIT)
    );
    
    // PositionControl
-   // WorkingRam
-   // NonVolatileRam
+   
+   WorkingRam sram
+   (
+      .clk(clk),
+      .SRAMn(SRAMn), .BRWn(BRWn), .B2H(H2), .WRITEn(WRITEn), 
+      .BA(BA), .hcount(hc), .BUF1BUF2n(BUF1BUF2n),
+      .data_to_sram(BD),
+      .data_from_sram(sram_to_cpu)
+   );
+
+   NonVolatileRam nvram
+   (
+      .clk(clk),
+      .NVRAMn(NVRAMn), 
+      .WRphi2n(~(H2 & ~BRWn)),
+      .BA(BA[7:0]),
+      //.DCOKn, .STORE, .RECALLn, .SIREn,    // not used, maybe MiSTer framework can store nvram data?
+      .data_to_nvram(BD),
+      .data_from_nvram(nvram_to_cpu)
+   ); 
    
    // MotionObjectPictureROM
    // MotionObjectVerticalControl
    // MotionObjectBuffer
    // MotionObjectHorizontalControl
    
-   wire [8:0] clr_data = BA[9:1];
+   wire [8:0] clr_data;
    ColorMemory cmem
    (
       .CLK10(clk),
@@ -272,10 +302,10 @@ module ccastles
       .BD(BD),
       .BA(BA[5:0]),
       
-      .MPI(BA[4]), .MV0(BA[5]), .MV1(BA[6]), .MV2(BA[7]),
-      .BIT0(BA[0]), .BIT1(BA[1]), .BIT2(BA[2]), .BIT3(BA[3]),
+      .MPI(1'b0), .MV0(1'b0), .MV1(1'b0), .MV2(1'b0),
+      .BIT(BIT),
       
-      .o()
+      .o(clr_data)
    );
    
    ColorOutput clrout

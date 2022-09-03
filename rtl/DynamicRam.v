@@ -8,8 +8,10 @@ module DynamicRam
    
    input [7:0] data_to_dram,
    output [7:0] data_from_dram,
-   
-   output BIT2, BIT1, BIT0
+
+   input PLAYER2, CLK5n,
+   input [7:0] HL,
+   output reg [3:0] BIT
 );
 
 wire [3:0] data_from_4H;
@@ -53,6 +55,27 @@ dram4416 ic4E
    .dout(data_from_4E)
 );
 
-assign data_from_dram = DRHn ? { data_from_4J, data_from_4H } : { data_from_4E, data_from_4F };
+wire [7:0] lo_byte = { data_from_4J, data_from_4H };
+wire [7:0] hi_byte = { data_from_4E, data_from_4F };
+assign data_from_dram = DRHn ? lo_byte : hi_byte;
+
+wire clk2 = PLAYER2 ^ HL[2];
+
+reg [7:0] ic5F_5J, ic5H_5J;
+always @(posedge clk2)
+begin
+   ic5F_5J <= #1 hi_byte;
+   ic5H_5J <= #1 lo_byte;
+end
+
+always @(posedge CLK5n)
+begin
+   if (HL[2])
+      BIT <= #1 HL[0] ? ic5H_5J[7:4]  : ic5H_5J[3:0];
+   else 
+      BIT <= #1 HL[0] ? ic5F_5J[7:4]  : ic5F_5J[3:0];
+end
+
+
 
 endmodule

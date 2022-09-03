@@ -11,7 +11,7 @@ module ProgramMemory
    rom2764 #(.INIT_FILE("136022-101.1f.rom")) ic1F
    (
       .clk(clk), 
-      .en(~rom1_n),
+      .en(1'b1),
       .addr(address),
       .data(data_ic1F)
    );
@@ -19,7 +19,7 @@ module ProgramMemory
    rom2764 #(.INIT_FILE("136022-102.1h.rom")) ic1H
    (
       .clk(clk), 
-      .en(~rom0_n),
+      .en(1'b1),
       .addr(address),
       .data(data_ic1H)
    );
@@ -27,7 +27,7 @@ module ProgramMemory
    rom2764 #(.INIT_FILE("136022-303.1k.rom")) ic1K
    (
       .clk(clk), 
-      .en(~rom0_n),
+      .en(1'b1),
       .addr(address),
       .data(data_ic1K)
    );
@@ -35,16 +35,17 @@ module ProgramMemory
    rom2764 #(.INIT_FILE("136022-304.1l.rom")) ic1L
    (
       .clk(clk), 
-      .en(~rom1_n),
+      .en(1'b1),
       .addr(address),
       .data(data_ic1L)
    );
 
+
+   //rom2764 #(.INIT_FILE("diagnose.rom")) ic1N
    rom2764 #(.INIT_FILE("136022-305.1n.rom")) ic1N
-   //rom2764 #(.INIT_FILE("rom.txt")) ic1N
    (
       .clk(clk), 
-      .en(~rom2_n),
+      .en(1'b1),
       .addr(address),
       .data(data_ic1N)
    );

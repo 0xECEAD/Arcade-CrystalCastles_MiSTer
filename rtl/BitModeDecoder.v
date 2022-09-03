@@ -15,7 +15,7 @@ ls139 ic2A
    .y(y)
 );
 
-assign BITWRn = ~(~WRphi2n & ~y[3]);
+assign BITWRn = ~(~WRphi2n & ~y[2]);
 assign BITMDn = y[2];
 assign YCOORDn = ~(~WRphi2n & ~y[1]);
 assign XCOORDn = ~(~WRphi2n & ~y[0]);

@@ -361,8 +361,50 @@ endmodule
 // --------------------------------------------------------------------------------------------------------------------------------
 // X2212		Non volatile RAM
 
+module nvram2212
+(
+   input clk,
+   input we_n,
+   input [7:0] addr,
+   input [3:0] din,
+   output reg [3:0] dout
+);
+   reg [3:0] mem [0:255];
+
+   always @(posedge clk) 
+   begin
+      if (we_n == 1'b0) 
+         mem[addr] <= din;
+      else 
+         dout <= mem[addr];
+   end
+
+endmodule	
+
+
 // --------------------------------------------------------------------------------------------------------------------------------
 // CDW6116		200ns TriState SRAM (2k x 8b)
+
+module sram6116 
+(
+   input clk,
+   input we_n, 
+   input [10:0] addr,
+   input [7:0] din,
+   output reg [7:0] dout
+);
+   reg [7:0] mem [0:2047];
+
+   always @(posedge clk) 
+   begin
+      if (we_n == 1'b0) 
+         mem[addr] <= din;
+      else
+         dout <= mem[addr];
+   end
+   
+endmodule
+
 
 // --------------------------------------------------------------------------------------------------------------------------------
 // 82S129		Bus PROM (256 x 4b)
@@ -395,9 +437,9 @@ endmodule
 // 82S09		      64 X 9 RAM
 
 module cram82S09
- (
+(
    input clk,
-   
+
    input ce_n, we_n,
    input [5:0] addr,
    input [8:0] din,

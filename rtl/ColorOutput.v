@@ -9,7 +9,7 @@ module ColorOutput
 
 wire clr_n = ~(HBLANK2 | VBLANK);
 
-always @(posedge CLK5 or negedge clr_n)
+always @(posedge CLK5)
 begin
    if (clr_n == 1'b0) RGB <= #1 9'd0;
    else RGB <= #1 data;

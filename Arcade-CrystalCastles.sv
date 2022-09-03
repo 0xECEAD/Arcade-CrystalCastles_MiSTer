@@ -288,6 +288,7 @@ wire m_coin1p   = joystick_0[6];
 wire m_jump2p  = joystick_1[4];
 wire m_start2p  = joystick_1[5];
 wire m_coin2p   = joystick_1[6];
+wire LIGHTBULB;
 
 
 ccastles ccastles
@@ -302,6 +303,7 @@ ccastles ccastles
    .START1(m_start1p), .START2(m_start2p),
    .JMP1(m_jump1p), .JMP2(m_jump2p),
    .COINL(m_coin1p), .COINR(m_coin2p),
+	.LIGHTBULB(LIGHTBULB),
 	
 	.HBlank(HBlank),
 	.HSync(HSync),
@@ -317,7 +319,7 @@ ccastles ccastles
 
 
 assign USER_OUT = { 1'b1, test };
-assign LED_USER = forced_scandoubler;
+assign LED_USER = LIGHTBULB;
 
 
 reg [1:0] cnt;
