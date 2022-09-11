@@ -1,81 +1,45 @@
 module DynamicRam
 (
-   input clk,
-   input RASn, CASn, DRWR,
-   input [7:0] DRAB,
-   input DRLn, DRHn,
-   input WP0n, WP1n, WP2n, WP3n,
+   input clk, ce2Hd, ce5,
+   input [14:0] DRBA,
+   input DRAMn, BRWn, BITMDn, PIXA,
    
-   input [7:0] data_to_dram,
-   output [7:0] data_from_dram,
+   input [7:0] BD,
+   output [7:0] dram_to_cpu,
 
-   input PLAYER2, CLK5n,
-   input [7:0] HL,
+   input [7:0] hs,
+   input [7:0] vs,
+   input PLAYER2,
    output reg [3:0] BIT
 );
 
-wire [3:0] data_from_4H;
-dram4416 ic4H
+wire [7:0] dout;
+wire [7:0] bmw_to_dram = PIXA ? { BD[7:4], dout[3:0] } : { dout[7:4], BD[7:4]};
+wire [7:0] data_to_dram = ~BITMDn ? bmw_to_dram : BD;
+
+wire WE = ~DRAMn & ~BRWn & ce2Hd;
+
+wire [14:0] addr = ce5 ? {vs,hs[7:1]} : DRBA;
+
+
+dram #(.INIT_FILE("empty32k.ram")) ic4H4J4F4E
 (
    .clk(clk),
-   .rasn(RASn), .casn(CASn),
-   .gn(DRWR), .wn(WP0n),
-   .a(DRAB), 
-   .din(data_to_dram[3:0]),
-   .dout(data_from_4H)
-);
-wire [3:0] data_from_4J;
-dram4416 ic4J
-(
-   .clk(clk),
-   .rasn(RASn), .casn(CASn),
-   .gn(DRWR), .wn(WP1n),
-   .a(DRAB), 
-   .din(data_to_dram[7:4]),
-   .dout(data_from_4J)
-);
-wire [3:0] data_from_4F;
-dram4416 ic4F
-(
-   .clk(clk),
-   .rasn(RASn), .casn(CASn),
-   .gn(DRWR), .wn(WP2n),
-   .a(DRAB), 
-   .din(data_to_dram[3:0]),
-   .dout(data_from_4F)
-);
-wire [3:0] data_from_4E;
-dram4416 ic4E
-(
-   .clk(clk),
-   .rasn(RASn), .casn(CASn),
-   .gn(DRWR), .wn(WP2n),
-   .a(DRAB), 
-   .din(data_to_dram[7:4]),
-   .dout(data_from_4E)
+   .we(WE),
+   .addr(addr), 
+   .din(data_to_dram),
+   .dout(dout)
 );
 
-wire [7:0] lo_byte = { data_from_4J, data_from_4H };
-wire [7:0] hi_byte = { data_from_4E, data_from_4F };
-assign data_from_dram = DRHn ? lo_byte : hi_byte;
-
-wire clk2 = PLAYER2 ^ HL[2];
-
-reg [7:0] ic5F_5J, ic5H_5J;
-always @(posedge clk2)
+reg ce2Hd2;
+reg [7:0] bmrd_to_cpu;
+always @(posedge clk)
 begin
-   ic5F_5J <= #1 hi_byte;
-   ic5H_5J <= #1 lo_byte;
+   ce2Hd2 <= #1 ce2Hd;
+   if (ce2Hd2) bmrd_to_cpu <= #1 { PIXA ? dout[7:4] : dout[3:0], 4'b000 };             // 0x0002
+   if (ce5) BIT <= #1 hs[0] ? dout[7:4] : dout[3:0];
 end
 
-always @(posedge CLK5n)
-begin
-   if (HL[2])
-      BIT <= #1 HL[0] ? ic5H_5J[7:4]  : ic5H_5J[3:0];
-   else 
-      BIT <= #1 HL[0] ? ic5F_5J[7:4]  : ic5F_5J[3:0];
-end
-
-
+assign dram_to_cpu = ~BITMDn ? bmrd_to_cpu : dout;
 
 endmodule
