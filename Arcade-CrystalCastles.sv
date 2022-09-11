@@ -212,7 +212,8 @@ localparam CONF_STR = {
 	"O2,Self Test Mode,Off,On;",
 	"O3,Cabinet,Upright,Cocktail;",
 	"-;",
-	"J1,Jump,Start 1P,Start 2P,Coin P1,Coin P2;",
+	"J1,Jump/Start 1P,Coin P1;",
+	"J2,Jump/Start 2P,Coin P2;",
    "T[0],Reset;",
    "R[0],Reset and close OSD;",
 	"V,v",`BUILD_DATE 
@@ -280,13 +281,11 @@ arcade_video #(256,9) arcade_video
 	.fx(3'b000)
 );
 
-wire m_jump1p  = joystick_0[4];
-wire m_start1p  = joystick_0[5];
-wire m_coin1p   = joystick_0[6];
+wire m_startjump1p  = joystick_0[4];
+wire m_coin1p   = joystick_0[5];
 
-wire m_jump2p  = joystick_1[4];
-wire m_start2p  = joystick_1[5];
-wire m_coin2p   = joystick_1[6];
+wire m_startjump2p  = joystick_1[4];
+wire m_coin2p   = joystick_1[5];
 wire LIGHTBULB;
 
 
@@ -300,10 +299,9 @@ CCastles ccastles
    
 	.WDISn(status[1]),
    .SELFTEST(status[2]),
-   .COCKTAILn(status[3]),
+   .COCKTAIL(status[3]),
 	
-   .START1(m_start1p), .START2(m_start2p),
-   .JMP1(m_jump1p), .JMP2(m_jump2p),
+   .STARTJMP1(m_startjmp1p), .STARTJMP2(m_startjump2p),
    .COINL(m_coin1p), .COINR(m_coin2p),
 	.LIGHTBULB(LIGHTBULB),
 	

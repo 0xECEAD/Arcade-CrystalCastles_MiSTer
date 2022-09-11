@@ -7,10 +7,9 @@ module CCastles
    // Game Options
    input         WDISn,
    input         SELFTEST,
-   input         COCKTAILn,
+   input         COCKTAIL,
    // Buttons
-   input         START1, START2,
-   input         JMP1, JMP2,
+   input         STARTJMP1, STARTJMP2,
    input         COINL, COINR,
    // Outputs
    output        STARTLED1, STARTLED2,
@@ -93,7 +92,7 @@ MicroProcessor cpu
 
 
 wire [7:0] rom_to_cpu, sram_to_cpu, bmr_to_cpu, dram_to_cpu, nvram_to_cpu, pokey_to_cpu;
-wire [7:0] playerSwitches = { JMP2, JMP1, VBLANK, SELFTEST, 1'b0, 1'b0, COINL, COINR };         // ic11C
+wire [7:0] playerSwitches = { STARTJMP2, STARTJMP1, VBLANK, SELFTEST, 1'b0, 1'b0, COINL, COINR };         // ic11C
 
 always @(posedge clk) 
 begin
@@ -230,9 +229,9 @@ AudioOutput ao
    .BA(BA), .BD(BD),
    .CIOn(CIOn), .BRWn(BRWn),
    
-   .COCKTAILn(COCKTAILn),
-   .START1(START1),
-   .START2(START2),
+   .COCKTAIL(COCKTAIL),
+   .STARTJMP1(STARTJMP1),
+   .STARTJMP2(STARTJMP2),
    
    .pokey_to_cpu(pokey_to_cpu),
    .SOUT(SOUT)
