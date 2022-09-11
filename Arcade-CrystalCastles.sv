@@ -283,12 +283,10 @@ arcade_video #(256,9) arcade_video
 
 wire m_startjump1p  = joystick_0[4];
 wire m_coin1p   = joystick_0[5];
-
 wire m_startjump2p  = joystick_1[4];
 wire m_coin2p   = joystick_1[5];
+
 wire LIGHTBULB;
-
-
 wire reset = RESET | status[0] | buttons[1];
 
 
@@ -301,7 +299,7 @@ CCastles ccastles
    .SELFTEST(status[2]),
    .COCKTAIL(status[3]),
 	
-   .STARTJMP1(m_startjmp1p), .STARTJMP2(m_startjump2p),
+   .STARTJMP1(m_startjump1p), .STARTJMP2(m_startjump2p),
    .COINL(m_coin1p), .COINR(m_coin2p),
 	.LIGHTBULB(LIGHTBULB),
 	
