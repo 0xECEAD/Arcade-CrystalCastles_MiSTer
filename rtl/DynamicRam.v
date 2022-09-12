@@ -15,7 +15,7 @@ module DynamicRam
 );
 
 wire [3:0] data_from_4H;
-dram4416 ic4H
+dram4416 #(.INIT_FILE("empty16k.ram")) ic4H
 (
    .clk(clk),
    .rasn(RASn), .casn(CASn),
@@ -25,7 +25,7 @@ dram4416 ic4H
    .dout(data_from_4H)
 );
 wire [3:0] data_from_4J;
-dram4416 ic4J
+dram4416 #(.INIT_FILE("empty16k.ram")) ic4J
 (
    .clk(clk),
    .rasn(RASn), .casn(CASn),
@@ -35,7 +35,7 @@ dram4416 ic4J
    .dout(data_from_4J)
 );
 wire [3:0] data_from_4F;
-dram4416 ic4F
+dram4416 #(.INIT_FILE("empty16k.ram")) ic4F
 (
    .clk(clk),
    .rasn(RASn), .casn(CASn),
@@ -45,7 +45,7 @@ dram4416 ic4F
    .dout(data_from_4F)
 );
 wire [3:0] data_from_4E;
-dram4416 ic4E
+dram4416 #(.INIT_FILE("empty16k.ram")) ic4E
 (
    .clk(clk),
    .rasn(RASn), .casn(CASn),

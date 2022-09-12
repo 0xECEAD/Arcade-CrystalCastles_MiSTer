@@ -194,6 +194,8 @@ assign LED_DISK = 0;
 assign LED_POWER = 0;
 assign BUTTONS = 0;
 
+assign LED_USER = LIGHTBULB;
+
 //////////////////////////////////////////////////////////////////
 
 wire [1:0] ar = status[122:121];
@@ -210,7 +212,7 @@ localparam CONF_STR = {
 	"O2,Self Test Mode,Off,On;",
 	"O3,Cabinet,Upright,Cocktail;",
 	"-;",
-	"J1,Jump,Start 1P,Start 2P,Coin P1,Coin P2;",
+	"J1,Jump/Start 1P,Coin P1;",
 	"T[0],Reset;",
 	"R[0],Reset and close OSD;",
 	"V,v",`BUILD_DATE 
@@ -257,8 +259,6 @@ pll pll
 	.outclk_1(clk_game)
 );
 
-wire reset = RESET | status[0] | buttons[1];
-
 //////////////////////////////////////////////////////////////////
 
 wire HBlank;
@@ -280,15 +280,13 @@ arcade_video #(256,9) arcade_video
 	.fx(3'b000)
 );
 
-wire [5:0] test;
-wire m_jump1p  = joystick_0[4];
-wire m_start1p  = joystick_0[5];
-wire m_coin1p   = joystick_0[6];
+wire m_startjump1p  = joystick_0[4];
+wire m_coin1p   = joystick_0[5];
+wire m_startjump2p  = joystick_1[4];
+wire m_coin2p   = joystick_1[5];
 
-wire m_jump2p  = joystick_1[4];
-wire m_start2p  = joystick_1[5];
-wire m_coin2p   = joystick_1[6];
 wire LIGHTBULB;
+wire reset = RESET | status[0] | buttons[1];
 
 
 ccastles ccastles
@@ -298,10 +296,9 @@ ccastles ccastles
    
 	.WDISn(status[1]),
    .SELFTEST(~status[2]),
-   .COCKTAILn(status[3]),
+   .COCKTAIL(status[3]),
 	
-   .START1(m_start1p), .START2(m_start2p),
-   .JMP1(m_jump1p), .JMP2(m_jump2p),
+   .STARTJMP1(m_startjump1p), .STARTJMP2(m_startjump2p),   
    .COINL(m_coin1p), .COINR(m_coin2p),
 	.LIGHTBULB(LIGHTBULB),
 	
@@ -313,14 +310,10 @@ ccastles ccastles
    .SOUT(AOUT),
 
 	.RGBout(rgb),
-   .test(test)
+	
+	.USER_IN(USER_IN),
+	.USER_OUT(USER_OUT)
 );
-
-
-
-assign USER_OUT = { 1'b1, test };
-assign LED_USER = LIGHTBULB;
-
 
 reg [1:0] cnt;
 always @(posedge clk_sys) 

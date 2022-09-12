@@ -44,7 +44,7 @@ module AddresDecoder
 
    output CIOn, IN0n, OUT0n, OUT1n, 
    output BITRDn, DRHn, DRLn,
-   output CRAMn, NVRAMn, SBUSn, SRAMn,
+   output CRAMn, NVRAMn, SBUSn, SRAMn, UARTn,
    output NRn, DBUSn, ROM2n, ROM1n, ROM0n
 );
 
@@ -78,7 +78,7 @@ module AddresDecoder
       .g1(1'b1),
       .g2a_n(WRITEn),
       .g2b_n(w6R_6L6M5M),
-      .y({CRAMn,OUT1n,OUT0n,WDOGn,INTACKn,VSLDn,HSLDn,dmy})
+      .y({CRAMn,OUT1n,OUT0n,WDOGn,INTACKn,VSLDn,HSLDn,UARTn})
    ); 
 
    rom82S129 #(.INIT_FILE("82s129-136022-109.6l.rom")) ic6L

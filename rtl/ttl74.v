@@ -271,7 +271,7 @@ always @(posedge clk or negedge load_n or negedge clear_n)
       else if(~g_n && ~dwnup_n)
          q <= #1 q + 4'b0001;
    end
-   assign rco_n = ~dwnup_n & q != 4'b1111 | dwnup_n & q != 4'b0000;
+   assign rco_n = g_n | ~dwnup_n & q != 4'b1111 | dwnup_n & q != 4'b0000;
 endmodule
 
 
@@ -318,7 +318,7 @@ endmodule
 
 module ls259
 (
-   input a,b,c,
+    input a,b,c,
    input d,
    input g_n,
    input clr_n,
@@ -385,7 +385,7 @@ endmodule
 // --------------------------------------------------------------------------------------------------------------------------------
 // CDW6116		200ns TriState SRAM (2k x 8b)
 
-module sram6116 
+module sram6116 # ( parameter INIT_FILE = "init.txt" )
 (
    input clk,
    input we_n, 
@@ -402,6 +402,11 @@ module sram6116
       else
          dout <= mem[addr];
    end
+   
+   initial begin
+      $readmemh(INIT_FILE, mem);
+   end
+
    
 endmodule
 
@@ -515,7 +520,7 @@ endmodule
 // --------------------------------------------------------------------------------------------------------------------------------
 // TMS4416		16k x 4b DRAM
 
-module dram4416
+module dram4416 # ( parameter INIT_FILE = "init.txt" )
  (
    input clk,
    
@@ -538,6 +543,10 @@ module dram4416
       else if (gn == 1'b0 & casn == 1'b0) 
          dout <= mem[addr];
    end
+
+initial begin
+   $readmemh(INIT_FILE, mem);
+end
 
 endmodule	
 

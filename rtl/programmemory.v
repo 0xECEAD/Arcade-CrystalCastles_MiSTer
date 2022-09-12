@@ -40,9 +40,13 @@ module ProgramMemory
       .data(data_ic1L)
    );
 
-
-   //rom2764 #(.INIT_FILE("diagnose.rom")) ic1N
-   rom2764 #(.INIT_FILE("136022-305.1n.rom")) ic1N
+   rom2764 #(
+`ifdef RUNDIAGNOSTIC
+      .INIT_FILE("diagnose.rom")
+`else      
+      .INIT_FILE("136022-305.1n.rom")
+`endif   
+      ) ic1N
    (
       .clk(clk), 
       .en(1'b1),

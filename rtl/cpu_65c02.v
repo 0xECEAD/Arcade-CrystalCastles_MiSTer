@@ -121,7 +121,7 @@ parameter
  */
 
 
-`ifdef SIM
+`ifdef RUNSIMULATION
 wire [7:0]   A = AXYS[SEL_A];           // Accumulator
 wire [7:0]   X = AXYS[SEL_X];           // X register
 wire [7:0]   Y = AXYS[SEL_Y];           // Y register
@@ -263,7 +263,7 @@ parameter
     JMPIX1 = 6'd52, // JMP (,X)- fetch MSB and send to ALU (+Carry)
     JMPIX2 = 6'd53; // JMP (,X)- Wait for ALU (only if needed)
 
-`ifdef SIM
+`ifdef RUNSIMULATION
 
 /*
  * easy to read names in simulator output

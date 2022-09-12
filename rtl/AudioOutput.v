@@ -7,8 +7,8 @@ module AudioOutput
    input CIOn, BRWn,
    input [7:0] BD,
 	
-   input         COCKTAILn,
-   input         START1, START2,
+   input         COCKTAIL,
+   input         STARTJMP1, STARTJMP2,
      
    output [7:0] pokey_to_cpu,
    output [7:0] SOUT
@@ -18,7 +18,7 @@ module AudioOutput
 wire cs_pokey3B = ~CIOn & ~BA[9];
 wire cs_pokey3D = ~CIOn & BA[9];
 wire [5:0] snd1,snd2;
-wire [7:0] DIP = { 1'b0, 1'b0, COCKTAILn, ~START2, ~START1, 1'b0, 1'b0, 1'b0 };
+wire [7:0] DIP = { 1'b0, 1'b0, COCKTAIL, STARTJMP2, STARTJMP1, 1'b0, 1'b0, 1'b0 };
 wire [7:0] rdt3B, rdt3D;
 
 PokeyW ic3D

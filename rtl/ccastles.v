@@ -7,10 +7,9 @@ module ccastles
    // Game Options
    input         WDISn,
    input         SELFTEST,
-   input         COCKTAILn,
+   input         COCKTAIL,
    // Buttons
-   input         START1, START2,
-   input         JMP1, JMP2,
+   input         STARTJMP1, STARTJMP2,
    input         COINL, COINR,
    // Outputs
    output        STARTLED1, STARTLED2,
@@ -26,8 +25,9 @@ module ccastles
    // Sound
    output [7:0]  SOUT,
    
-   // Debugging     
-   output [5:0]  test	
+   // User Port
+   input   [6:0] USER_IN,
+   output  [6:0] USER_OUT
 );
 
 	wire [8:0] hc;
@@ -79,7 +79,7 @@ module ccastles
    reg [7:0] DIprep, DIhold;
    wire [7:0] BD;
    wire [15:0] BA;
-   wire BRWn, ROM2n, ROM1n, ROM0n, SBUSn;
+   wire BRWn, ROM2n, ROM1n, ROM0n, SBUSn, UARTn;
 	wire DRWR,WRITEn;
    
    always @(negedge H2) 
@@ -96,6 +96,12 @@ module ccastles
                DIprep <= #1 sbus_to_cpu;
             else if (CIOn == 1'b0)           // 0x9800-0x9BFF
                DIprep <= #1 pokey_to_cpu;
+               
+         else if (BA[15:7] == 9'b100111000 & ~BA[0])
+            DIprep <= #1 uart_to_cpu;
+         else if (BA[15:7] == 9'b100111000 & BA[0])
+            DIprep <= #1 {uart_rx_avail, 6'b000000, uart_tx_busy };
+               
          end
       else 
          begin 
@@ -137,9 +143,10 @@ module ccastles
    );
 
    wire CIOn, IN0n, OUT0n, BITRDn;
-	wire NRn, BITMDn,CRAMn,NVRAMn,SRAMn;
+   wire NRn, BITMDn,CRAMn,NVRAMn,SRAMn;
    wire YINCn, XINCn, AYn, AXn;
    wire PLAYER2, VSLDn, HSLDn, DRLn, DRHn;
+   wire BUF1BUF2n;
    AddresDecoder ad
    (
       .RESETn(reset_n), 
@@ -156,7 +163,7 @@ module ccastles
       .INTACKn(INTACKn),
       .VSLDn(VSLDn),
       .HSLDn(HSLDn),
-      .BUF1BUF2n(),
+      .BUF1BUF2n(BUF1BUF2n),
       .SIREn(),
       .PLAYER2(PLAYER2),
       .STARTLED1(STARTLED1),
@@ -164,7 +171,7 @@ module ccastles
       .CIOn(CIOn), .IN0n(IN0n), .OUT0n(OUT0n),
       .BITRDn(BITRDn),
       .DRHn(DRHn), .DRLn(DRLn),
-      .CRAMn(CRAMn), .NVRAMn(NVRAMn), .SBUSn(SBUSn), .SRAMn(SRAMn),
+      .CRAMn(CRAMn), .NVRAMn(NVRAMn), .SBUSn(SBUSn), .SRAMn(SRAMn), .UARTn(UARTn),
       .NRn(NRn), .DBUSn(), .ROM2n(ROM2n), .ROM1n(ROM1n),.ROM0n(ROM0n)
    );
 
@@ -302,7 +309,7 @@ module ccastles
       .BD(BD),
       .BA(BA[5:0]),
       
-      .MPI(BA[6]), .MV0(BA[7]), .MV1(BA[3]), .MV2(vc[4]),
+      .MPI(1'b1), .MV0(1'b1), .MV1(1'b1), .MV2(1'b1),
       .BIT(BIT),
       
       .o(clr_data)
@@ -327,9 +334,9 @@ module ccastles
       .BRWn(BRWn),
       .BD(BD),
 		
-		.COCKTAILn(COCKTAILn),
-		.START1(START1),
-		.START2(START2),
+		.COCKTAIL(COCKTAIL),
+		.STARTJMP1(STARTJMP1),
+		.STARTJMP2(STARTJMP2),
 		
       .pokey_to_cpu(pokey_to_cpu),
       .SOUT(SOUT)
@@ -339,7 +346,7 @@ module ccastles
    (
       .BA9(BA[9]), 
       .IN0n(IN0n), 
-      .JMP2(JMP2), .JMP1(JMP1), .SELFTEST(SELFTEST), .VBLANK(VBlank), .SLAM(1'b0), .COINAUX(1'b0), .COINL(COINL), .COINR(COINR),
+      .JMP2(STARTJMP2), .JMP1(STARTJMP1), .SELFTEST(SELFTEST), .VBLANK(VBlank), .SLAM(1'b0), .COINAUX(1'b0), .COINL(COINL), .COINR(COINR),
       .SBD(sbus_to_cpu)
    );
      
@@ -357,7 +364,52 @@ module ccastles
       .STARTLED2(STARTLED2), .LIGHTBULB(LIGHTBULB)
    );
 
+
+`ifdef RUNDIAGNOSTIC
+
+   // 10000000 / 115200 = 87 clocks per bit.
+   parameter c_CLKS_PER_BIT = 87;
+
+   wire RX, TX;
+   wire uart_rx_done, uart_tx_busy;
+   reg uart_rx_avail;
+   wire [7:0] uart_to_cpu;
+
+   always @(posedge clk or negedge reset_n) 
+   begin
+      if(~reset_n)
+           uart_rx_avail <= #1 1'b0;
+      else if (~UARTn & BA[0])         // 0x9C01      write clears avail reg
+           uart_rx_avail <= #1 1'b0;
+      else if (uart_rx_done)
+           uart_rx_avail <= #1 1'b1;
+   end
+
+   uart_rx #(.CLKS_PER_BIT(c_CLKS_PER_BIT)) urx (
+      .i_Clock(clk),
+      .i_Rx_Serial(RX),
+      .o_Rx_DV(uart_rx_done),
+      .o_Rx_Byte(uart_to_cpu)
+   );
+
+   wire WE = ~UARTn & ~BRWn & ~uart_tx_busy && ~WRITEn;
+   uart_tx #(.CLKS_PER_BIT(c_CLKS_PER_BIT)) utx (
+      .i_Clock(clk),
+      .i_Tx_DV(WE),
+      .i_Tx_Byte(BD),
+      .o_Tx_Active(uart_tx_busy),
+      .o_Tx_Serial(TX),
+      .o_Tx_Done()
+   );
+
+   assign RX = USER_IN[0];
+   assign USER_OUT = { 1'b0, uart_rx_avail, RX, VBlank, HBlank, TX, 1'b1 };
+`else
+
+    assign USER_OUT = { 1'b0, 1'b0, 1'b0, VBlank, HBlank, 1'b0, 1'b0 };
+    
+`endif
+
    assign HBlank = HBLANK2;
-   assign test = { SELFTEST, START1, COINL, COINCNTL_L, VBlank, HBlank };
 
 endmodule
