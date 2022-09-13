@@ -1,3 +1,29 @@
+//              A = DEADSEL         B = B2H         
+//              
+//                 |       CPU            |          VIDEO              |
+//              
+//                  8b            6b          8b                6b
+//                  RASn          CASn        RASn              CASn
+//                  ROW           COL         ROW               COL
+//                  1 1           1 0         0 1               0 0
+//           
+//  DRAB[7]         DRBA[8]       0           w3K_4LMNP[1]      0               
+//  DRAB[6]         DRBA[7]       DRBA[14]    w3K_4LMNP[0]      w3K_4LMNP[7]      
+//  DRAB[5]         DRBA[6]       DRBA[13]    HL[7]             w3K_4LMNP[6]         
+//  DRAB[4]         DRBA[5]       DRBA[12]    HL[6]             w3K_4LMNP[5]         
+//  DRAB[3]         DRBA[4]       DRBA[11]    HL[5]             w3K_4LMNP[4]         
+//  DRAB[2]         DRBA[3]       DRBA[10]    HL[4]             w3K_4LMNP[3]         
+//  DRAB[1]         DRBA[2]       DRBA[9]     HL[3]             w3K_4LMNP[2]         
+//  DRAB[0]         DRBA[1]       0           HL[2]             0                  
+//  
+//  
+//  Chip 4H4J       DRBA[0]=0                 HL[1]=1
+//  Chip 4F4E       DRBA[0]=1                 HL[1]=0
+//  
+//                                            HL[0]=0        LOW NIBBLE
+//                                            HL[0]=1        HIGH NIBBLE
+//  
+//  
 module AddresSelectors
 (
    input RESETn,

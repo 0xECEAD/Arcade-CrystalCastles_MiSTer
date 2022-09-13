@@ -21,7 +21,7 @@ module DynamicRamWriteProtection
    wire w11M_11K;
    ls74 ic11Mb
    (
-   	.pre_n(1'b1),
+      .pre_n(1'b1),
       .clr_n(~BA[15] & ~WRITEn),
       .clk(~clk), 
       .d(CLK5n), 

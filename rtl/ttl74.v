@@ -3,11 +3,11 @@
 
 module ls74
 (
-	input  pre_n,
-	input  clr_n,
-	input  clk, 
-	input  d, 
-	output reg q,
+   input  pre_n,
+   input  clr_n,
+   input  clk, 
+   input  d, 
+   output reg q,
    output q_n
 );
 always @(posedge clk or negedge pre_n or negedge clr_n) 
@@ -27,27 +27,27 @@ endmodule
 
 module ls109
 (
-	input  pre_n,
-	input  clr_n,
-	input  clk, 
-	input  j, 
-	input  k_n, 
-	output reg q,
+   input  pre_n,
+   input  clr_n,
+   input  clk, 
+   input  j, 
+   input  k_n, 
+   output reg q,
    output q_n
 );
 always @(posedge clk or negedge pre_n or negedge clr_n) 
 begin
-	if(~pre_n)
-		q <= #1 1;
-	else if(~clr_n)
-		q <= #1 0;
-	else
-		case ({j, k_n})
+   if(~pre_n)
+      q <= #1 1;
+   else if(~clr_n)
+      q <= #1 0;
+   else
+      case ({j, k_n})
          2'b01: q <= #1 q;
          2'b00: q <= #1 1'b0;
          2'b11: q <= #1 1'b1;
          2'b10: q <= #1 ~q;
-		endcase
+      endcase
    end
    assign q_n = ~q;
 endmodule
@@ -137,8 +137,8 @@ endmodule
 
 module ls160
 (
-	input load_n,
-	input clr_n,
+   input load_n,
+   input clr_n,
    input clk,
    
    input [3:0] p,   
@@ -149,15 +149,15 @@ module ls160
 );
 always @(posedge clk or negedge clr_n)
    begin
-		if(!clr_n)
+      if(!clr_n)
          q <= #1 4'b0000;
-		else if(!load_n)
+      else if(!load_n)
          q <= p;
       else if(ent & enp)
          if (rco)
-				q <= #1 4'b0000;
+            q <= #1 4'b0000;
          else
-				q <= #1 q + 4'b0001;
+            q <= #1 q + 4'b0001;
    end
    assign rco = ent & q == 4'b1001;
 endmodule
@@ -167,8 +167,8 @@ endmodule
 
 module ls163
 (
-	input load_n,
-	input clr_n,
+   input load_n,
+   input clr_n,
    input clk,
    
    input [3:0] p,
@@ -180,8 +180,8 @@ module ls163
 
 always @(posedge clk) 
    begin
-		if(!clr_n)
-			q <= 4'b0000;
+      if(!clr_n)
+         q <= 4'b0000;
       else if(!load_n)
          q <= p;
       else if(ent & enp)
@@ -195,8 +195,8 @@ endmodule
 
 module ls169
 (
-	input clr_n,
-	input load_n,
+   input clr_n,
+   input load_n,
    input clk,
    input updwn,
    input [3:0] p,
@@ -229,10 +229,10 @@ endmodule
 
 module ls175
 (
-	input  clr_n,
-	input  clk, 
-	input [3:0] d, 
-	output reg [3:0] q,
+   input  clr_n,
+   input  clk, 
+   input [3:0] d, 
+   output reg [3:0] q,
    output [3:0] q_n
 );
 always @(posedge clk or negedge clr_n) 
@@ -250,9 +250,9 @@ endmodule
 
 module ls191
 (
-	input clear_n,
-	input load_n,
-	input dwnup_n,
+   input clear_n,
+   input load_n,
+   input dwnup_n,
    input g_n, clk,
    input [3:0] p,
    
@@ -280,8 +280,8 @@ endmodule
 
 // module ls193
 // (
-  // input clr,			// async
-  // input load_n,		// async
+  // input clr,         // async
+  // input load_n,      // async
   // input up,
   // input down,
   // input [3:0] p,
@@ -359,7 +359,7 @@ endmodule
 // 137304-1001    Track Ball Interface
 
 // --------------------------------------------------------------------------------------------------------------------------------
-// X2212		Non volatile RAM
+// X2212      Non volatile RAM
 
 module nvram2212
 (
@@ -379,11 +379,11 @@ module nvram2212
          dout <= mem[addr];
    end
 
-endmodule	
+endmodule   
 
 
 // --------------------------------------------------------------------------------------------------------------------------------
-// CDW6116		200ns TriState SRAM (2k x 8b)
+// CDW6116      200ns TriState SRAM (2k x 8b)
 
 module sram6116 # ( parameter INIT_FILE = "init.txt" )
 (
@@ -412,7 +412,7 @@ endmodule
 
 
 // --------------------------------------------------------------------------------------------------------------------------------
-// 82S129		Bus PROM (256 x 4b)
+// 82S129      Bus PROM (256 x 4b)
 
 module rom82S129 # ( parameter INIT_FILE = "rom.txt" )
 (
@@ -430,16 +430,16 @@ module rom82S129 # ( parameter INIT_FILE = "rom.txt" )
    end
 
    initial begin
-      $readmemh(INIT_FILE, mem);			// read hex values, one per line (use // for comment)
+      $readmemh(INIT_FILE, mem);         // read hex values, one per line (use // for comment)
    end
 
-endmodule	
+endmodule   
 
 // --------------------------------------------------------------------------------------------------------------------------------
-// 137199-001		55ns TriState SRAM (1k x 4b)
+// 137199-001      55ns TriState SRAM (1k x 4b)
 
 // --------------------------------------------------------------------------------------------------------------------------------
-// 82S09		      64 X 9 RAM
+// 82S09            64 X 9 RAM
 
 module cram82S09
 (
@@ -460,18 +460,18 @@ module cram82S09
          dout <= mem[addr];
    end
 
-endmodule	
+endmodule   
 
 
 
 // --------------------------------------------------------------------------------------------------------------------------------
-// POTATO	137321-1111	      Custom, Vertical Scroll
+// POTATO   137321-1111         Custom, Vertical Scroll
 
 module potato
 (
-	input clr_n,
-	input load_n,
-	input ce_n,
+   input clr_n,
+   input load_n,
+   input ce_n,
    input dwnup,
    input clk,
    input [7:0] p,
@@ -494,7 +494,7 @@ endmodule
 
 
 // --------------------------------------------------------------------------------------------------------------------------------
-// AM2764		8K x 8-Bit EPROM
+// AM2764      8K x 8-Bit EPROM
 
 module rom2764 # ( parameter INIT_FILE = "rom.txt" )
 (
@@ -512,13 +512,13 @@ module rom2764 # ( parameter INIT_FILE = "rom.txt" )
    end
 
    initial begin
-      $readmemh(INIT_FILE, mem);			// read hex values, one per line (use // for comment)
+      $readmemh(INIT_FILE, mem);         // read hex values, one per line (use // for comment)
    end
 
-endmodule	
+endmodule   
 
 // --------------------------------------------------------------------------------------------------------------------------------
-// TMS4416		16k x 4b DRAM
+// TMS4416      16k x 4b DRAM
 
 module dram4416 # ( parameter INIT_FILE = "init.txt" )
  (
@@ -548,7 +548,7 @@ initial begin
    $readmemh(INIT_FILE, mem);
 end
 
-endmodule	
+endmodule   
 
 
 // --------------------------------------------------------------------------------------------------------------------------------
@@ -556,35 +556,35 @@ endmodule
 
 module PokeyW
 (
-	input				clk,
-	input				rst_n,
-	input  [3:0]	ad,
-	input				cs,
-	input				we,
-	input  [7:0]	data_to_pokey,
-	output [7:0]	data_from_pokey,
+   input            clk,
+   input            rst_n,
+   input  [3:0]   ad,
+   input            cs,
+   input            we,
+   input  [7:0]   data_to_pokey,
+   output [7:0]   data_from_pokey,
 
-	output [5:0]	snd,
-	input  [7:0]	p
+   output [5:0]   snd,
+   input  [7:0]   p
 );
 
 wire [3:0] ch0,ch1,ch2,ch3;
 
 pokey core 
 (
-	.RESET_N(rst_n),
-	.CLK(clk),
-	.ADDR(ad),
-	.DATA_IN(data_to_pokey),
-	.DATA_OUT(data_from_pokey),
-	.WR_EN(we & cs),
-	.ENABLE_179(1'b1),
-	.POT_IN(~p),
-	
-	.CHANNEL_0_OUT(ch0),
-	.CHANNEL_1_OUT(ch1),
-	.CHANNEL_2_OUT(ch2),
-	.CHANNEL_3_OUT(ch3)
+   .RESET_N(rst_n),
+   .CLK(clk),
+   .ADDR(ad),
+   .DATA_IN(data_to_pokey),
+   .DATA_OUT(data_from_pokey),
+   .WR_EN(we & cs),
+   .ENABLE_179(1'b1),
+   .POT_IN(~p),
+   
+   .CHANNEL_0_OUT(ch0),
+   .CHANNEL_1_OUT(ch1),
+   .CHANNEL_2_OUT(ch2),
+   .CHANNEL_3_OUT(ch3)
 );
 assign snd = {2'b00,ch0}+{2'b00,ch1}+{2'b00,ch2}+{2'b00,ch3};
 endmodule

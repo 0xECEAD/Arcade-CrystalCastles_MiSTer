@@ -1,6 +1,6 @@
 module ccastles
 (
-	// clock and reset
+   // clock and reset
    input         clk,
    input         reset_n,
 
@@ -14,12 +14,12 @@ module ccastles
    // Outputs
    output        STARTLED1, STARTLED2,
    output        LIGHTBULB,
-	
-	// Video
+   
+   // Video
    output        HBlank,
-	output        HSync,
-	output        VBlank,
-	output        VSync,
+   output        HSync,
+   output        VBlank,
+   output        VSync,
    output [8:0]  RGBout,
 
    // Sound
@@ -30,7 +30,7 @@ module ccastles
    output  [6:0] USER_OUT
 );
 
-	wire [8:0] hc;
+   wire [8:0] hc;
    wire CLK5n, HBLANK1n, HBLANK2, HBLANK;
    HorSyncChan hsc
    (
@@ -42,30 +42,31 @@ module ccastles
       .HBLANK1n(HBLANK1n),
       .HBLANK(HBLANK),
       .HSYNC(HSync),
-		.hcount(hc)
+      .hcount(hc)
    );
    
-	wire [7:0] vc;
-	wire INTACKn,IRQCK;
+   wire [7:0] vc;
+   wire INTACKn,IRQCK;
    VertSyncChan vsc
    (
       .CLK10(clk),
       .RESETn(reset_n),
 
       .HBLANK(HBLANK),
+      .HBLANK1n(HBLANK1n),
       .HSYNC(HSync),
-		
-		.VBLANK(VBlank),
-		.VSYNC(VSync),
+   
+        .VBLANK(VBlank),
+     .VSYNC(VSync),
       .IRQCK(IRQCK),
-		.vcount(vc)
+     .vcount(vc)
    );
    
    wire WDOGn, wd_reset_n;
    Watchdog wd
    (
       .reset_n(reset_n),
-		.WDISn(WDISn),
+      .WDISn(WDISn),
       .WDOGn(WDOGn),
       // ignored DCOK (no power fails on MiSTer)
       .VBLANK(VBlank),
@@ -80,7 +81,7 @@ module ccastles
    wire [7:0] BD;
    wire [15:0] BA;
    wire BRWn, ROM2n, ROM1n, ROM0n, SBUSn, UARTn;
-	wire DRWR,WRITEn;
+   wire DRWR,WRITEn;
    
    always @(negedge H2) 
    begin
@@ -96,11 +97,13 @@ module ccastles
                DIprep <= #1 sbus_to_cpu;
             else if (CIOn == 1'b0)           // 0x9800-0x9BFF
                DIprep <= #1 pokey_to_cpu;
-               
+
+`ifdef RUNDIAGNOSTIC               
          else if (BA[15:7] == 9'b100111000 & ~BA[0])
             DIprep <= #1 uart_to_cpu;
          else if (BA[15:7] == 9'b100111000 & BA[0])
             DIprep <= #1 {uart_rx_avail, 6'b000000, uart_tx_busy };
+`endif				
                
          end
       else 
@@ -220,7 +223,7 @@ module ccastles
       .HL(HL)
    );
    
-	wire WP0n, WP1n, WP2n, WP3n;
+   wire WP0n, WP1n, WP2n, WP3n;
    DynamicRamWriteProtection drwp
    (
       .clk(clk), .CLK5n(~CLK5n),
@@ -333,11 +336,11 @@ module ccastles
       .CIOn(CIOn),
       .BRWn(BRWn),
       .BD(BD),
-		
-		.COCKTAIL(COCKTAIL),
-		.STARTJMP1(STARTJMP1),
-		.STARTJMP2(STARTJMP2),
-		
+      
+      .COCKTAIL(COCKTAIL),
+      .STARTJMP1(STARTJMP1),
+      .STARTJMP2(STARTJMP2),
+      
       .pokey_to_cpu(pokey_to_cpu),
       .SOUT(SOUT)
    );

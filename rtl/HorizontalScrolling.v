@@ -13,7 +13,7 @@ wire en_n = ~HBLANK1n | VBLANK;
 ls169 ic5P
 (
    .clr_n(RESETn),
-	.load_n(HSLDn),
+   .load_n(HSLDn),
    .clk(CLK10),
    .updwn(~PLAYER2),
    .p(BD[3:0]),
@@ -25,7 +25,7 @@ ls169 ic5P
 ls169 ic5N
 (
    .clr_n(RESETn),
-	.load_n(HSLDn),
+   .load_n(HSLDn),
    .clk(CLK10),
    .updwn(~PLAYER2),
    .p(BD[7:4]),

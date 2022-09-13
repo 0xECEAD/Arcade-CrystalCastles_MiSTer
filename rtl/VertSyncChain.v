@@ -13,7 +13,7 @@ module VertSyncChan(
    input CLK10,
    input RESETn,
 
-   input HBLANK,HSYNC,
+   input HBLANK,HSYNC,HBLANK1n,
 
    output VBLANK, VSYNC, IRQCK,
    output [7:0] vcount
@@ -29,6 +29,10 @@ module VertSyncChan(
 
    assign HBLANKn = ~HBLANK;
    assign vcount = {V128,V64,V32,V16,V8,V4,V2,V1};
+   
+   //wire VBLANK_TEST = (~vcount[7] & ~vcount[6] & ~vcount[5] & ~vcount[4]) | (~vcount[7] & ~vcount[6] & ~vcount[5] & ~vcount[3]);             // 
+   //wire VSYNC_TEST = (~vcount[7] & ~vcount[6] & ~vcount[5] & ~vcount[4] & ~vcount[3] & vcount[2] & ~vcount[1]) | (~vcount[7] & ~vcount[6] & ~vcount[5] & ~vcount[4] & ~vcount[3] & vcount[2] & ~vcount[0]);
+   //wire IRQCL_TEST = (~vcount[5]);
    
    ls163 ic7P
    (
@@ -64,7 +68,7 @@ module VertSyncChan(
    ls175 ic9Lb
    (
       .clr_n(RESETn),
-      .clk(HBLANKn), 
+      .clk(HBLANK1n),            // in schematic its HBLANKn but that does not exist?
       .d(w7K_8J), 
       
       .q({IRQCK,dmy0,w8J_8F,VBLANK}),

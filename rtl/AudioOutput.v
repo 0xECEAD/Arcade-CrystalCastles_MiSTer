@@ -1,12 +1,12 @@
 module AudioOutput
 (
-	input reset_n,
+   input reset_n,
    input clk,
    
    input [15:0] BA,
    input CIOn, BRWn,
    input [7:0] BD,
-	
+   
    input         COCKTAIL,
    input         STARTJMP1, STARTJMP2,
      
