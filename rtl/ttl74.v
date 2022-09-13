@@ -278,34 +278,6 @@ endmodule
 // --------------------------------------------------------------------------------------------------------------------------------
 // 74ls193  synchronous presettable up/down 4-bit binary counter, clear
 
-// module ls193
-// (
-  // input clr,         // async
-  // input load_n,      // async
-  // input up,
-  // input down,
-  // input [3:0] p,
-  // output co_n,
-  // output bo_n,
-  // output reg [3:0] q
-// );
-// always @(posedge clr or negedge load_n or posedge up or posedge down)
-// begin
-  // if (clr)
-    // q <= #1 4'b0000;
-  // else if (~load_n)
-    // q <= #1 p;
-  // else if (up)
-    // q <= #1 q + 4'b0001;
-  // else if (down)
-    // q <= #1 q - 4'b0001;
-// end
-
-// assign co_n = ~up & q == 4'b1111;
-// assign bo_n = ~down & q == 4'b0000;
-
-// endmodule
-
 // --------------------------------------------------------------------------------------------------------------------------------
 // 74ls194  4-bit bidirectional universal shift register
 
@@ -533,8 +505,8 @@ module dram4416 # ( parameter INIT_FILE = "init.txt" )
    reg [3:0] mem [0:16383];
    reg [13:0] addr;
 
-   always @(negedge rasn) addr[13:6] = a;
-   always @(negedge casn) addr[5:0] = a[6:1];
+   always @(negedge rasn) addr[7:0] = a;
+   always @(negedge casn) addr[13:8] = a[6:1];
 
    always @(posedge clk) 
    begin

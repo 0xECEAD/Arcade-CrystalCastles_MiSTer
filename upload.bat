@@ -1,4 +1,4 @@
 @echo off
 rem set builddate=`date +%F`
 rem set filename=Arcade-CrystalCastles_%builddate%
-scp output_files\Arcade-CrystalCastles.rbf root@192.168.1.105:/media/fat/_Other/Arcade-CrystalCastles.rbf
+scp output_files\Arcade-CrystalCastles.rbf root@192.168.1.105:/media/fat/_Other/Arcade-CC-ttl.rbf
