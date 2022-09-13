@@ -568,8 +568,31 @@ module PokeyW
 	input  [7:0]	p
 );
 
-wire [3:0] ch0,ch1,ch2,ch3;
+`ifdef RUNSIMULATION
 
+reg [7:0] mem [0:15];
+reg [5:0] snd_o;
+reg [7:0] data_out;
+always @(posedge clk)
+begin
+   if (~rst_n)
+   begin
+      snd_o <= 0;
+   end
+end
+assign snd = snd_o;
+
+always @(posedge clk) 
+begin
+   if (we & cs) 
+      mem[ad] <= data_to_pokey;
+   else data_out <= mem[ad];
+end
+assign data_from_pokey = data_out;
+
+`else
+
+wire [3:0] ch0,ch1,ch2,ch3;
 pokey core 
 (
 	.RESET_N(rst_n),
@@ -587,6 +610,8 @@ pokey core
 	.CHANNEL_3_OUT(ch3)
 );
 assign snd = {2'b00,ch0}+{2'b00,ch1}+{2'b00,ch2}+{2'b00,ch3};
+
+`endif
 endmodule
 
 
