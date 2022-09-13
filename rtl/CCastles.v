@@ -108,10 +108,13 @@ begin
             DI <= #1 playerSwitches;
          else if (~CIOn)                     // 0x9800-0x9BFF
             DI <= #1 pokey_to_cpu;
+            
+`ifdef RUNDIAGNOSTIC               
          else if (~UARTn & ~BA[0])
             DI <= #1 uart_to_cpu;
          else if (~UARTn & BA[0])
             DI <= #1 {uart_rx_avail, 6'b000000, uart_tx_busy };
+`endif
       end  
    else 
       DI <= #1 dram_to_cpu;                  // 0x0000-0x7FFF
@@ -277,6 +280,9 @@ CoinCountOutput cco
    .STARTLED2(STARTLED2), .LIGHTBULB(LIGHTBULB)
 );
 
+
+`ifdef RUNDIAGNOSTIC
+
 // 10000000 / 115200 = 87 clocks per bit.
 parameter c_CLKS_PER_BIT = 87;
 
@@ -314,6 +320,10 @@ uart_tx #(.CLKS_PER_BIT(c_CLKS_PER_BIT)) utx (
 
 assign RX = USER_IN[0];
 assign USER_OUT = { 1'b0, uart_rx_avail, RX, VBLANK, HBLANK, TX, 1'b1 };
+`else
+    assign USER_OUT = { 1'b0, 1'b0, 1'b0, VBLANK, HBLANK, 1'b0, 1'b0 };
+`endif
+
 assign RGBout = HBLANK | VBLANK ? 9'b000000000 : clr_data; 
 
 endmodule

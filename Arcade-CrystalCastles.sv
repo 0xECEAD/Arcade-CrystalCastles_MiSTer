@@ -213,9 +213,7 @@ localparam CONF_STR = {
 	"O3,Cabinet,Upright,Cocktail;",
 	"-;",
 	"J1,Jump/Start 1P,Coin P1;",
-	"J2,Jump/Start 2P,Coin P2;",
-   "T[0],Reset;",
-   "R[0],Reset and close OSD;",
+	"R[0],Reset and close OSD;",
 	"V,v",`BUILD_DATE 
 };
 
@@ -296,7 +294,7 @@ CCastles ccastles
 	.reset_n(~reset),
    
 	.WDISn(status[1]),
-   .SELFTEST(status[2]),
+   .SELFTEST(~status[2]),
    .COCKTAIL(status[3]),
 	
    .STARTJMP1(m_startjump1p), .STARTJMP2(m_startjump2p),
