@@ -17,9 +17,9 @@ wire [3:0] w3N_2N, w3M_2M, w3L_2L;
 
 ls191 ic3P
 (
-	.clear_n(RESETn),
+   .clear_n(RESETn),
    .load_n(XCOORDn),
-	.dwnup_n(XINCn),
+   .dwnup_n(XINCn),
    .g_n(AXn), 
    .clk(~w2P_3P3N3M3L),
    .p(BD[3:0]),  
@@ -29,8 +29,8 @@ ls191 ic3P
 ls191 ic3N
 (
    .clear_n(RESETn),
-	.load_n(XCOORDn),
-	.dwnup_n(XINCn),
+   .load_n(XCOORDn),
+   .dwnup_n(XINCn),
    .g_n(w3P_3N), 
    .clk(~w2P_3P3N3M3L),
    .p(BD[7:4]),  
@@ -39,8 +39,8 @@ ls191 ic3N
 ls191 ic3M
 (
    .clear_n(RESETn),
-	.load_n(YCOORDn),
-	.dwnup_n(YINCn),
+   .load_n(YCOORDn),
+   .dwnup_n(YINCn),
    .g_n(AYn), 
    .clk(~w2P_3P3N3M3L),
    .p(BD[3:0]),  
@@ -50,8 +50,8 @@ ls191 ic3M
 ls191 ic3L
 (
    .clear_n(RESETn),
-	.load_n(YCOORDn),
-	.dwnup_n(YINCn),
+   .load_n(YCOORDn),
+   .dwnup_n(YINCn),
    .g_n(w3M_3L), 
    .clk(~w2P_3P3N3M3L),
    .p(BD[7:4]),  

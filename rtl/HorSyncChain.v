@@ -30,7 +30,7 @@ module HorSyncChan(
    
    ls74 ic9Lb
    (
-   	.pre_n(1'b1),
+      .pre_n(1'b1),
       .clr_n(RESETn),
       .clk(CLK10), 
       .d(CLK5n), 
@@ -41,7 +41,7 @@ module HorSyncChan(
 
    ls109 ic8Lb
    (
-   	.pre_n(1'b1),
+      .pre_n(1'b1),
       .clr_n(RESETn),
       .clk(CLK10), 
       .j(CLK5), 
@@ -76,7 +76,7 @@ module HorSyncChan(
 
    ls74 ic7Lb
    (
-   	.pre_n(HBLANK),
+      .pre_n(HBLANK),
       .clr_n(RESETn),
       .clk(H16), 
       .d(H32),
@@ -87,7 +87,7 @@ module HorSyncChan(
 
    ls74 ic7La
    (
-   	.pre_n(1'b1),
+      .pre_n(1'b1),
       .clr_n(RESETn),
       .clk(H4), 
       .d(HBLANK), 
@@ -98,7 +98,7 @@ module HorSyncChan(
    
    ls109 ic8La
    (
-   	.pre_n(HBLANK1n),
+      .pre_n(HBLANK1n),
       .clr_n(RESETn),
       .clk(~H4), 
       .j(w7L_8L), 

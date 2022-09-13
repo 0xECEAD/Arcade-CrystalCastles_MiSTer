@@ -16,7 +16,7 @@ module DynamicRamControl
    
    ls74 ic9La
    (
-   	.pre_n(1'b1),
+      .pre_n(1'b1),
       .clr_n(w9K_9L),
       .clk(CLK10n), 
       .d(w7J_9L), 
@@ -25,7 +25,7 @@ module DynamicRamControl
    
    ls74 ic9Ka
    (
-   	.pre_n(1'b1),
+      .pre_n(1'b1),
       .clr_n(RESETn),
       .clk(CLK10n), 
       .d(RASn), 
@@ -34,7 +34,7 @@ module DynamicRamControl
 
    ls74 ic9Kb
    (
-   	.pre_n(1'b1),
+      .pre_n(1'b1),
       .clr_n(RESETn),
       .clk(CLK10), 
       .d(DEADSEL), 

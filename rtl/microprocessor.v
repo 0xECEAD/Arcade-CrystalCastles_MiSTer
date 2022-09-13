@@ -28,7 +28,7 @@ module MicroProcessor
 
    ls74 ic11Ra
    (
-   	.pre_n(INTACKn & RESETn),
+      .pre_n(INTACKn & RESETn),
       .clr_n(1'b1),
       .clk(IRQCK), 
       .d(1'b0), 

@@ -59,7 +59,7 @@ wire [7:0] lo_byte = { data_from_4J, data_from_4H };
 wire [7:0] hi_byte = { data_from_4E, data_from_4F };
 assign data_from_dram = DRHn ? lo_byte : hi_byte;
 
-wire clk2 = PLAYER2 ^ HL[2];
+wire clk2 = PLAYER2 ^ HL[1];
 
 reg [7:0] ic5F_5J, ic5H_5J;
 always @(posedge clk2)
@@ -70,7 +70,7 @@ end
 
 always @(posedge CLK5n)
 begin
-   if (HL[2])
+   if (HL[1])
       BIT <= #1 HL[0] ? ic5H_5J[7:4]  : ic5H_5J[3:0];
    else 
       BIT <= #1 HL[0] ? ic5F_5J[7:4]  : ic5F_5J[3:0];
