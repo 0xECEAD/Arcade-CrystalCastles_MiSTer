@@ -51,7 +51,7 @@ set_global_assignment -name ALM_REGISTER_PACKING_EFFORT MEDIUM
 set_global_assignment -name SEED 1
 
 #enable to run the serial interface to kernel debugger
-#set_global_assignment -name VERILOG_MACRO "RUNDIAGNOSTICS=1"
+set_global_assignment -name VERILOG_MACRO "RUNDIAGNOSTIC=1"
 
 
 #set_global_assignment -name VERILOG_MACRO "MISTER_FB=1"
