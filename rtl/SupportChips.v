@@ -1,3 +1,6 @@
+// `define RUNSIMULATION
+
+
 // --------------------------------------------------------------------------------------------------------------------------------
 // AM2764      8K x 8-Bit EPROM
 
@@ -196,3 +199,60 @@ assign snd = {2'b00,ch0}+{2'b00,ch1}+{2'b00,ch2}+{2'b00,ch3};
 `endif
 endmodule
 
+
+// --------------------------------------------------------------------------------------------------------------------------------
+// LETA
+module LETA
+(
+   input clk, reset_n,
+   input X1, Y1, X2, Y2, X3, Y3, X4, Y4,
+   input [1:0] addr,
+   output reg [7:0] data
+);
+
+wire [7:0] data1,data2,data3,data4;
+quad_decoder qd1 ( .clk(clk), .reset_n(reset_n), .A(X1), .B(Y1), .count(data1));
+quad_decoder qd2 ( .clk(clk), .reset_n(reset_n), .A(X2), .B(Y2), .count(data2));
+quad_decoder qd3 ( .clk(clk), .reset_n(reset_n), .A(X3), .B(Y3), .count(data3));
+quad_decoder qd4 ( .clk(clk), .reset_n(reset_n), .A(X4), .B(Y4), .count(data4));
+
+always @(posedge clk)
+begin
+  case(addr)
+    2'b00: data = data1;
+    2'b01: data = data2;
+    2'b10: data = data3;
+    2'b11: data = data4;
+  endcase
+end
+
+endmodule
+
+// --------------------------------------------------------------------------------------------------------------------------------
+// Quadrature decoder
+
+module quad_decoder
+(
+   input clk, reset_n,
+   input A, B, 
+   output reg [7:0] count
+);
+
+reg [2:0] a_delayed, b_delayed;
+always @(posedge clk) a_delayed <= {a_delayed[1:0], A};
+always @(posedge clk) b_delayed <= {b_delayed[1:0], B};
+
+wire ce = a_delayed[1] ^ a_delayed[2] ^ b_delayed[1] ^ b_delayed[2];
+wire dir = a_delayed[1] ^ b_delayed[2];
+
+always @(posedge clk or negedge reset_n)
+begin
+   if (~reset_n)
+      count <= 0;
+   else if(ce)
+      begin
+         if(dir) count<=count + 1; else count<=count - 1;
+      end
+end
+
+endmodule

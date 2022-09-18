@@ -1,6 +1,6 @@
 module AutoIncrement
 (
-   input clk, reset_n, ce2Hd,
+   input clk, reset_n, ce2H,
 
    input [15:0] BA,
    input [7:0] BD,
@@ -24,7 +24,7 @@ begin
         xCoord <= #1 8'b0000000;
    else if(~XCOORDn)
         xCoord <= #1 BD;
-   else if(~AXn & ~BITMDn & ce2Hd)
+   else if(~AXn & ~BITMDn & ce2H)
       begin
          if (XINCn)
             xCoord <= #1 xCoord - 8'b00000001;
@@ -39,7 +39,7 @@ begin
         yCoord <= #1 8'b0000000;
    else if(~YCOORDn)
         yCoord <= #1 BD;
-   else if(~AYn & ~BITMDn & ce2Hd)
+   else if(~AYn & ~BITMDn & ce2H)
       begin
          if (YINCn)
             yCoord <= #1 yCoord - 8'b00000001;

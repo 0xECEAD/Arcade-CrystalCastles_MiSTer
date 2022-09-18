@@ -24,18 +24,31 @@ module CCastles
 
    // Sound
    output [7:0]  SOUT,
+
+   // Debug
+   output [15:0] DEBUG_BA,
+   output        DEBUG_RW,
+   output [7:0]  DEBUG_DO,
+   output [7:0]  DEBUG_DI,
    
    // User Port
    input   [6:0] USER_IN,
    output  [6:0] USER_OUT
 );
 
+assign DEBUG_BA = BA;
+assign DEBUG_RW = BRWn;
+assign DEBUG_DO = BD;
+assign DEBUG_DI = DI;
 
-wire ce5, ce1H, ce2H, ce2Hd;
+
+
+wire ce5, ce1H, ce2H, ce2Hd, ce2Hd2, ce2Hd3, ce2Hd4;
 Clock clkgen
 (
    .clk(clk), .reset_n(reset_n),
-   .ce5(ce5), .ce1H(ce1H), .ce2H(ce2H), .ce2Hd(ce2Hd)
+   .ce5(ce5), .ce1H(ce1H), .ce2H(ce2H), 
+   .ce2Hd(ce2Hd), .ce2Hd2(ce2Hd2), .ce2Hd3(ce2Hd3), .ce2Hd4(ce2Hd4)
 );
 
 wire IRQCLK;
@@ -78,7 +91,7 @@ reg [7:0] DI;
 wire INTACKn, BRWn;
 MicroProcessor cpu
 (
-   .clk(clk), .ce2H(ce2H), .ce2Hd(ce2Hd),
+   .clk(clk), .ce2H(ce2H),
    .reset_n(reset_n & wd_reset_n),       
         
    .INTACKn(INTACKn),
@@ -91,8 +104,8 @@ MicroProcessor cpu
 );
 
 
-wire [7:0] rom_to_cpu, sram_to_cpu, bmr_to_cpu, dram_to_cpu, nvram_to_cpu, pokey_to_cpu;
-wire [7:0] playerSwitches = { STARTJMP2, STARTJMP1, VBLANK, SELFTEST, 1'b0, 1'b0, COINL, COINR };         // ic11C
+wire [7:0] rom_to_cpu, sram_to_cpu, bmr_to_cpu, dram_to_cpu, nvram_to_cpu, pokey_to_cpu, leta_to_cpu;
+wire [7:0] playerSwitches = { ~STARTJMP2, ~STARTJMP1, VBLANK, ~SELFTEST, 1'b1, 1'b1, ~COINL, ~COINR};         // ic11C
 
 always @(posedge clk) 
 begin
@@ -104,11 +117,12 @@ begin
             DI <= #1 sram_to_cpu;
          else if (NVRAMn == 1'b0)            // 0x9000-0x93FF
             DI <= #1 nvram_to_cpu;
-         else if (~IN0n & BA[9])             // 0x9400-0x97FF
+         else if (~IN0n & ~BA[9])            // 0x9400-0x95FF
+            DI <= #1 leta_to_cpu;
+         else if (~IN0n & BA[9])             // 0x9600-0x97FF
             DI <= #1 playerSwitches;
          else if (~CIOn)                     // 0x9800-0x9BFF
             DI <= #1 pokey_to_cpu;
-            
 `ifdef RUNDIAGNOSTIC               
          else if (~UARTn & ~BA[0])
             DI <= #1 uart_to_cpu;
@@ -117,7 +131,7 @@ begin
 `endif
       end  
    else 
-      DI <= #1 dram_to_cpu;                  // 0x0000-0x7FFF
+      DI <= #1 dram_to_cpu;                  // 0x0000-0x7FFF, inc BITMODE
 end
 
 wire CIOn, IN0n, OUT0n, OUT1n;
@@ -143,7 +157,7 @@ wire [14:0] DRBA;
 wire PIXA;
 AutoIncrement ai
 (
-   .clk(clk), .reset_n(reset_n), .ce2Hd(ce2Hd),
+   .clk(clk), .reset_n(reset_n), .ce2H(ce2H),
    .BITMDn(BITMDn), .BD(BD), .BA(BA),
    
    .XCOORDn(XCOORDn), .XINCn(XINCn), .AXn(AXn), 
@@ -180,7 +194,7 @@ begin
    else 
       begin
          HSYNCd <= #1 HSYNC;
-         if (HSYNCd & ~HSYNC)
+         if (HSYNCd & ~HSYNC & ~VBLANK)
          begin
             if (PLAYER2)
                vs <= #1 vs - 8'b00000001;
@@ -194,7 +208,7 @@ end
 wire [3:0] BIT;
 DynamicRam dram
 (
-   .clk(clk), .ce2Hd(ce2Hd), .ce5(ce5),
+   .clk(clk), .ce5(ce5), .ce2Hd2(ce2Hd2), .ce2Hd3(ce2Hd3),
    .DRAMn(BA[15]), .BRWn(BRWn),
    .BITMDn(BITMDn), .PIXA(PIXA),
    .DRBA(DRBA), .BD(BD), 
@@ -224,6 +238,15 @@ NonVolatileRam nvram
    .data_from_nvram(nvram_to_cpu)
 ); 
 
+wire tb1VD,tb1VC,tb1HD,tb1HC;
+LETA tb
+(
+   .clk(clk), .reset_n(reset_n),
+   .X1(tb1VD), .Y1(tb1VC), .X2(tb1HD), .Y2(tb1HC), 
+   .X3(), .Y3(), .X4(), .Y4(),  
+   .addr(BA[1:0]),
+   .data(leta_to_cpu)
+);
 
 AudioOutput ao
 (
@@ -318,11 +341,18 @@ uart_tx #(.CLKS_PER_BIT(c_CLKS_PER_BIT)) utx (
    .o_Tx_Done()
 );
 
-assign RX = USER_IN[0];
-assign USER_OUT = { 1'b0, uart_rx_avail, RX, VBLANK, HBLANK, TX, 1'b1 };
+   assign RX = USER_IN[0];
+   assign USER_OUT = { 1'b0, 1'b1, 1'b1, 1'b1, 1'b1, TX, 1'b1 };
 `else
-    assign USER_OUT = { 1'b0, 1'b0, 1'b0, VBLANK, HBLANK, 1'b0, 1'b0 };
+    assign USER_OUT = { 1'b0, 1'b1, 1'b1, 1'b1, 1'b1, 1'b1, 1'b1 };
 `endif
+
+wire tb1JMP = ~USER_IN[0];
+wire tb1COIN = ~USER_IN[1];
+assign tb1VD = USER_IN[2];
+assign tb1VC = USER_IN[3];
+assign tb1HD = USER_IN[4];
+assign tb1HC = USER_IN[5];
 
 assign RGBout = HBLANK | VBLANK ? 9'b000000000 : clr_data; 
 

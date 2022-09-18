@@ -1,6 +1,6 @@
 module MicroProcessor
 (
-   input clk, ce2H, ce2Hd,
+   input clk, ce2H,
    input reset_n,
    input INTACKn, IRQCLK,
    

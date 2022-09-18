@@ -176,7 +176,8 @@ module emu
 assign ADC_BUS  = 'Z;
 assign {UART_RTS, UART_TXD, UART_DTR} = 0;
 assign {SD_SCK, SD_MOSI, SD_CS} = 'Z;
-assign {SDRAM_DQ, SDRAM_A, SDRAM_BA, SDRAM_CLK, SDRAM_CKE, SDRAM_DQML, SDRAM_DQMH, SDRAM_nWE, SDRAM_nCAS, SDRAM_nRAS, SDRAM_nCS} = 'Z;
+//assign {SDRAM_DQ, SDRAM_A, SDRAM_BA, SDRAM_CLK, SDRAM_CKE, SDRAM_DQML, SDRAM_DQMH, SDRAM_nWE, SDRAM_nCAS, SDRAM_nRAS, SDRAM_nCS} = 'Z;
+assign {SDRAM_A, SDRAM_BA, SDRAM_CLK, SDRAM_CKE, SDRAM_DQML, SDRAM_DQMH, SDRAM_nCAS, SDRAM_nRAS, SDRAM_nCS} = 'Z;
 assign {DDRAM_CLK, DDRAM_BURSTCNT, DDRAM_ADDR, DDRAM_DIN, DDRAM_BE, DDRAM_RD, DDRAM_WE} = '0;  
 
 assign VGA_F1 = 0;
@@ -196,6 +197,14 @@ assign BUTTONS = 0;
 
 assign LED_USER = LIGHTBULB;
 
+
+//////////////////////////////////////////////////////////////////
+
+wire [15:0] DEBUG_BA;
+wire DEBUG_RW;
+assign SDRAM_DQ = DEBUG_BA;
+assign SDRAM_nWE = DEBUG_RW;
+
 //////////////////////////////////////////////////////////////////
 
 wire [1:0] ar = status[122:121];
@@ -212,8 +221,8 @@ localparam CONF_STR = {
 	"O2,Self Test Mode,Off,On;",
 	"O3,Cabinet,Upright,Cocktail;",
 	"-;",
-	"J1,Jump/Start 1P,Coin P1;",
-	"R[0],Reset and close OSD;",
+	"R0,Reset;",
+	"J1,Jump/Start,Coin;",
 	"V,v",`BUILD_DATE 
 };
 
@@ -223,9 +232,8 @@ wire         forced_scandoubler;
 wire         direct_video;
 wire   [1:0] buttons;
 wire [127:0] status;
-wire  [10:0] ps2_key;
 wire  [21:0] gamma_bus;
-wire  [15:0] joystick_0,joystick_1;
+wire  [15:0] joystick_0;
 
 hps_io #(.CONF_STR(CONF_STR)) hps_io
 (
@@ -242,9 +250,7 @@ hps_io #(.CONF_STR(CONF_STR)) hps_io
 	.status(status),
 	.status_menumask({direct_video}),
 	
-	.ps2_key(ps2_key),
-	.joystick_0(joystick_0),
-	.joystick_1(joystick_1)
+	.joystick_0(joystick_0)
 );
 
 ///////////////////////   CLOCKS   ///////////////////////////////
@@ -281,8 +287,6 @@ arcade_video #(256,9) arcade_video
 
 wire m_startjump1p  = joystick_0[4];
 wire m_coin1p   = joystick_0[5];
-wire m_startjump2p  = joystick_1[4];
-wire m_coin2p   = joystick_1[5];
 
 wire LIGHTBULB;
 wire reset = RESET | status[0] | buttons[1];
@@ -294,11 +298,11 @@ CCastles ccastles
 	.reset_n(~reset),
    
 	.WDISn(status[1]),
-   .SELFTEST(~status[2]),
+   .SELFTEST(status[2]),
    .COCKTAIL(status[3]),
 	
-   .STARTJMP1(m_startjump1p), .STARTJMP2(m_startjump2p),
-   .COINL(m_coin1p), .COINR(m_coin2p),
+   .STARTJMP1(m_startjump1p), .STARTJMP2(1'b0),
+   .COINL(m_coin1p), .COINR(1'b0),
 	.LIGHTBULB(LIGHTBULB),
 	
 	.HBLANK(HBlank),
@@ -311,7 +315,10 @@ CCastles ccastles
 	.RGBout(rgb),
    
 	.USER_IN(USER_IN),
-	.USER_OUT(USER_OUT)
+	.USER_OUT(USER_OUT),
+   
+   .DEBUG_BA(DEBUG_BA),
+   .DEBUG_RW(DEBUG_RW)
 );
 
 reg [1:0] cnt;
