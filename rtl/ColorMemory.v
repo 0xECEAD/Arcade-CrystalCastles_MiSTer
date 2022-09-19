@@ -13,12 +13,13 @@ module ColorMemory
 );
 
 wire sel = (~MV[2] & ~MV[1] & ~MV[0]) | (~MV[2] & ~MV[3]) | (~MV[2] & ~BIT[3]) | (~MV[1] & ~MV[3]) | (~MV[1] & ~BIT[3]) | (~MV[0] & ~MV[3]) | (~MV[0] & ~BIT[3]);
-wire A4 = (~MV[2] & ~MV[1] & ~MV[0]) | (~MV[2] & ~MV[3]) | (~MV[2] & ~BIT[3]) | (~MV[1] & ~MV[3]) | (~MV[1] & ~BIT[3]) | (~MV[0] & ~MV[3]) |  (~MV[0] & ~BIT[3]);
+wire A4 = (MV[0] & MV[3] & BIT[3]) | (MV[1] & MV[3] & BIT[3]) | (MV[2] & MV[3] & BIT[3]) | (MV[2] & MV[1] & MV[0]);
 wire A3 = sel ? MV[3] : BIT[3];
 wire A2 = sel ? MV[2] : BIT[2];
 wire A1 = sel ? MV[1] : BIT[1];
 wire A0 = sel ? MV[0] : BIT[0];
 wire [4:0] addr = CRAMn ? { A4, A3, A2, A1, A0 } : BA[4:0];
+wire [8:0] rbg;
 
 cram82S09 ic10R
  (
@@ -26,7 +27,9 @@ cram82S09 ic10R
    .we(~CRAMn),
    .addr(addr),
    .din( {BA[5], BD} ),
-   .dout(o)
+   .dout(rbg)
 );
+
+assign o = { ~rbg[8:6], ~rbg[2:0], ~rbg[5:3] };
 
 endmodule

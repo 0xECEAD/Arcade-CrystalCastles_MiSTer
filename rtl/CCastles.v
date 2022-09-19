@@ -263,7 +263,7 @@ AudioOutput ao
    .SOUT(SOUT)
 );
 
-wire [8:0] clr_data;
+wire [8:0] rgb_data;
 ColorMemory cmem
 (
    .clk(clk), .ce5(ce5),
@@ -272,7 +272,7 @@ ColorMemory cmem
    .MV(4'b1111),
    .BIT(BIT),
   
-   .o(clr_data)
+   .o(rgb_data)
 );
 
 
@@ -354,7 +354,7 @@ assign tb1VC = USER_IN[3];
 assign tb1HD = USER_IN[4];
 assign tb1HC = USER_IN[5];
 
-assign RGBout = HBLANK | VBLANK ? 9'b000000000 : clr_data; 
+assign RGBout = HBLANK | VBLANK ? 9'b000000000 : rgb_data; 
 
 endmodule
 
