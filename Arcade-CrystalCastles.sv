@@ -176,8 +176,7 @@ module emu
 assign ADC_BUS  = 'Z;
 assign {UART_RTS, UART_TXD, UART_DTR} = 0;
 assign {SD_SCK, SD_MOSI, SD_CS} = 'Z;
-//assign {SDRAM_DQ, SDRAM_A, SDRAM_BA, SDRAM_CLK, SDRAM_CKE, SDRAM_DQML, SDRAM_DQMH, SDRAM_nWE, SDRAM_nCAS, SDRAM_nRAS, SDRAM_nCS} = 'Z;
-assign {SDRAM_A, SDRAM_BA, SDRAM_CLK, SDRAM_CKE, SDRAM_DQML, SDRAM_DQMH, SDRAM_nCAS, SDRAM_nRAS, SDRAM_nCS} = 'Z;
+assign {SDRAM_DQ, SDRAM_A, SDRAM_BA, SDRAM_CLK, SDRAM_CKE, SDRAM_DQML, SDRAM_DQMH, SDRAM_nWE, SDRAM_nCAS, SDRAM_nRAS, SDRAM_nCS} = 'Z;
 assign {DDRAM_CLK, DDRAM_BURSTCNT, DDRAM_ADDR, DDRAM_DIN, DDRAM_BE, DDRAM_RD, DDRAM_WE} = '0;  
 
 assign VGA_F1 = 0;
@@ -200,10 +199,11 @@ assign LED_USER = LIGHTBULB;
 
 //////////////////////////////////////////////////////////////////
 
-wire [15:0] DEBUG_BA;
-wire DEBUG_RW;
-assign SDRAM_DQ = DEBUG_BA;
-assign SDRAM_nWE = DEBUG_RW;
+//assign {SDRAM_A, SDRAM_BA, SDRAM_CLK, SDRAM_CKE, SDRAM_DQML, SDRAM_DQMH, SDRAM_nCAS, SDRAM_nRAS, SDRAM_nCS} = 'Z;
+//wire [15:0] DEBUG_BA;
+//wire DEBUG_RW;
+//assign SDRAM_DQ = DEBUG_BA;
+//assign SDRAM_nWE = DEBUG_RW;
 
 //////////////////////////////////////////////////////////////////
 
@@ -316,10 +316,10 @@ CCastles ccastles
 	.RGBout(rgb),
    
 	.USER_IN(USER_IN),
-	.USER_OUT(USER_OUT),
+	.USER_OUT(USER_OUT)
    
-   .DEBUG_BA(DEBUG_BA),
-   .DEBUG_RW(DEBUG_RW)
+   //.DEBUG_BA(DEBUG_BA),
+   //.DEBUG_RW(DEBUG_RW)
 );
 
 reg [1:0] cnt;

@@ -26,20 +26,20 @@ module CCastles
    output [7:0]  SOUT,
 
    // Debug
-   output [15:0] DEBUG_BA,
-   output        DEBUG_RW,
-   output [7:0]  DEBUG_DO,
-   output [7:0]  DEBUG_DI,
+   //output [15:0] DEBUG_BA,
+   //output        DEBUG_RW,
+   //output [7:0]  DEBUG_DO,
+   //output [7:0]  DEBUG_DI,
    
    // User Port
    input   [6:0] USER_IN,
    output  [6:0] USER_OUT
 );
 
-assign DEBUG_BA = BA;
-assign DEBUG_RW = BRWn;
-assign DEBUG_DO = BD;
-assign DEBUG_DI = DI;
+//assign DEBUG_BA = BA;
+//assign DEBUG_RW = BRWn;
+//assign DEBUG_DO = BD;
+//assign DEBUG_DI = DI;
 
 
 
@@ -105,7 +105,7 @@ MicroProcessor cpu
 
 
 wire [7:0] rom_to_cpu, sram_to_cpu, bmr_to_cpu, dram_to_cpu, nvram_to_cpu, pokey_to_cpu, leta_to_cpu;
-wire [7:0] playerSwitches = { ~STARTJMP2, ~STARTJMP1, VBLANK, ~SELFTEST, 1'b1, 1'b1, ~COINL, ~COINR};         // ic11C
+wire [7:0] playerSwitches = { ~STARTJMP2, ~(STARTJMP1|tb1JMP), VBLANK, ~SELFTEST, 1'b1, 1'b1, ~(COINL|tb1COIN), ~COINR};         // ic11C
 
 always @(posedge clk) 
 begin
@@ -233,7 +233,7 @@ NonVolatileRam nvram
    .clk(clk), .ce2Hd(ce2Hd),
    .NVRAMn(NVRAMn), .BRWn(BRWn),
    .BA(BA[7:0]),
-   //.DCOKn, .STORE, .RECALLn, .SIREn,    // not used, maybe MiSTer framework can store nvram data?
+   .STORE(STORE), .RECALLn(RECALLn), .SIREn(SIREn), //.DCOKn,     // not used
    .data_to_nvram(BD),
    .data_from_nvram(nvram_to_cpu)
 ); 
@@ -290,7 +290,7 @@ AutoIncOutput aio
    .AYn(AYn), .AXn(AXn)
 );
 
-wire COINCNTL_L;
+wire COINCNTL_L, STORE, RECALLn;
 CoinCountOutput cco
 (
    .clk(clk), .reset_n(reset_n), 
@@ -299,7 +299,7 @@ CoinCountOutput cco
    
    .BANK0n(BANK0n), .BANK1n(BANK1n), 
    .COINCNTL_L(COINCNTL_L), .COINCNTL_R(),
-   .RECALLn(), .STORE(),
+   .RECALLn(RECALLn), .STORE(STORE),
    .STARTLED2(STARTLED2), .LIGHTBULB(LIGHTBULB)
 );
 

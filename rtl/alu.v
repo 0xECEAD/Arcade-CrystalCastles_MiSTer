@@ -47,7 +47,7 @@ reg [7:0] temp_BI;
 reg [4:0] temp_l;
 reg [4:0] temp_h;
 wire [8:0] temp = { temp_h, temp_l[3:0] };
-wire adder_CI = (right | (op[3:2] == 2'b11)) ? 0 : CI;
+wire adder_CI = (right | (op[3:2] == 2'b11)) ? 1'b0 : CI;
 
 // calculate the logic operations. The 'case' can be done in 1 LUT per
 // bit. The 'right' shift is a simple mux that can be implemented by
@@ -70,7 +70,7 @@ always @* begin
 	case( op[3:2] )
 	    2'b00: temp_BI = BI;	// A+B
 	    2'b01: temp_BI = ~BI;	// A-B
-	    2'b10: temp_BI = temp_logic;	// A+A
+	    2'b10: temp_BI = temp_logic[7:0];	// A+A
 	    2'b11: temp_BI = 0;		// A+0
 	endcase	
 end

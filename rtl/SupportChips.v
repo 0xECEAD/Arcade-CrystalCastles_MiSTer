@@ -251,7 +251,7 @@ begin
       count <= 0;
    else if(ce)
       begin
-         if(dir) count<=count + 1; else count<=count - 1;
+         if(dir) count<=count + 8'b00000001; else count<=count - 8'b00000001;
       end
 end
 
