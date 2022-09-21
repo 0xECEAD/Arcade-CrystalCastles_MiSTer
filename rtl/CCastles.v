@@ -230,7 +230,7 @@ WorkingRam sram
 
 NonVolatileRam nvram
 (
-   .clk(clk), .ce2Hd(ce2Hd),
+   .clk(clk), .ce2Hd(ce2Hd), .reset_n(reset_n),
    .NVRAMn(NVRAMn), .BRWn(BRWn),
    .BA(BA[7:0]),
    .STORE(STORE), .RECALLn(RECALLn), .SIREn(SIREn), //.DCOKn,     // not used

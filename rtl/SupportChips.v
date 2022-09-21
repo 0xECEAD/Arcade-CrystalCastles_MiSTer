@@ -86,25 +86,63 @@ endmodule
 
 module nvram # ( parameter INIT_FILE = "init.txt" )
 (
-   input clk,
-   input we,
+   input clk, we, reset_n,
+   input store, recall,
    input [7:0] addr,
    input [7:0] din,
-   output reg [7:0] dout
+   output [7:0] dout
 );
 
-reg [7:0] mem [0:255];
+reg [7:0] mem1 [0:255];
+reg [7:0] mem2 [0:255];
+reg bank, store_d, recall_d, storing;
+reg [8:0] counter;
+
+always @(posedge clk or negedge reset_n) 
+begin
+   if (~reset_n)
+   begin
+      bank <= #1 0;
+      storing <= #1 0;
+      counter <= #1 9'b000000000;
+   end
+   else
+   begin
+      store_d <= #1 store;
+      recall_d <= #1 recall;
+      
+      if (~recall_d && recall) bank <= #1 ~bank;
+      if (~storing & ~store_d && store) storing <= #1 1'b1;
+      if (storing) counter <= #1 counter + 9'b000000001;
+      if (counter == 9'b111111111) storing <= #1 1'b0;
+   end
+end
+
+// bank:  0 = mem1(ram), mem2(shadow)     => copy mem1=>mem2
+//        1 = mem2(ram), mem1(shadow)     => copy mem2=>mem1
+
+reg [7:0] dout1, dout2;
+wire [7:0] a = storing ? counter[8:1] : addr;
+assign dout = bank ? dout2 : dout1;
+wire we1 = storing ? bank & counter[0] : ~bank & we;
+wire [7:0] din1 = storing ? dout2 : din;
+wire we2 = storing ? ~bank & counter[0] : bank & we;
+wire [7:0] din2 = storing ? dout1 : din;
 
 always @(posedge clk) 
 begin
-   if (we) 
-      mem[addr] <= din;
-   else 
-      dout <= mem[addr];
+   if (we1) mem1[a] <= din1;
+   else dout1 <= mem1[a];
+end
+
+always @(posedge clk) 
+begin
+   if (we2) mem2[a] <= din2;
+   else dout2 <= mem2[a];
 end
 
 initial begin
-   $readmemh(INIT_FILE, mem);
+   $readmemh(INIT_FILE, mem2);         // nvram content in shadow, game recalls at boot
 end
 
 endmodule   
