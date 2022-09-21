@@ -82,9 +82,9 @@ endmodule
 
 
 // --------------------------------------------------------------------------------------------------------------------------------
-// X2212      Non volatile RAM   256x4 (2x)           combined into single 256 x 8b SRAM
+// X2212      Non volatile RAM   256x4 (2x)           combined into single 256 x 8b SRAM (with shadow for store/recall operations)
 
-module nvram # ( parameter INIT_FILE = "init.txt" )
+module nvram 
 (
    input clk, we, reset_n,
    input store, recall,
@@ -142,7 +142,7 @@ begin
 end
 
 initial begin
-   $readmemh(INIT_FILE, mem2);         // nvram content in shadow, game recalls at boot
+   $readmemh("nvram.rom", mem2);         // nvram content in shadow, game recalls at boot
 end
 
 endmodule   

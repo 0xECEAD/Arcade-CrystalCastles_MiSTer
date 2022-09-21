@@ -12,7 +12,7 @@ module NonVolatileRam
 
 wire WE = ~NVRAMn & ~BRWn & ce2Hd;
 
-nvram #(.INIT_FILE("nvram.rom")) ic4B4D
+nvram ic4B4D
 (
    .clk(clk), .reset_n(reset_n),
    
