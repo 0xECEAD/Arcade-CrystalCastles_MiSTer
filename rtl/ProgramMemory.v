@@ -1,3 +1,5 @@
+// `define RUNDIAGNOSTIC
+
 module ProgramMemory
 (
    input clk,
@@ -37,7 +39,7 @@ rom2764 #(.INIT_FILE("136022-304.1l.rom")) ic1L
    .data(data_ic1L)
 );
 
-`ifdef RUNDIAGNOSTIC               
+`ifdef RUNDIAGNOSTIC
 rom2764 #(.INIT_FILE("diagnose.rom")) ic1N 
 `else
 rom2764 #(.INIT_FILE("136022-305.1n.rom")) ic1N

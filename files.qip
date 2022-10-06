@@ -12,7 +12,12 @@ set_global_assignment -name VERILOG_FILE rtl/CoinCountOutput.v
 set_global_assignment -name VERILOG_FILE rtl/AutoIncOutput.v
 set_global_assignment -name VERILOG_FILE rtl/AudioOutput.v
 set_global_assignment -name VERILOG_FILE rtl/DynamicRam.v
+set_global_assignment -name VERILOG_FILE rtl/PositionControl.v
 set_global_assignment -name VERILOG_FILE rtl/WorkingRam.v
+set_global_assignment -name VERILOG_FILE rtl/MotionObjectPictureRom.v
+set_global_assignment -name VERILOG_FILE rtl/MotionObjectVerticalControl.v
+set_global_assignment -name VERILOG_FILE rtl/MotionObjectHorizontalControl.v
+set_global_assignment -name VERILOG_FILE rtl/MotionObjectBuffer.v
 set_global_assignment -name VERILOG_FILE rtl/AutoIncrement.v
 set_global_assignment -name VERILOG_FILE rtl/NonVolatileRam.v
 set_global_assignment -name VERILOG_FILE rtl/ColorMemory.v

@@ -148,6 +148,32 @@ end
 endmodule   
 
 
+// --------------------------------------------------------------------------------------------------------------------------------
+// 137199-001      55ns TriState SRAM (1k x 4b)
+
+module moram
+(
+   input clk,
+   input we, cs,
+   input [7:0] addr,
+   input [3:0] din,
+   output reg [3:0] dout
+);
+
+reg [3:0] mem [0:255];
+
+always @(posedge clk) 
+begin
+   if (we & cs) 
+      mem[addr] <= din;
+   else
+      dout <= mem[addr];
+end
+
+endmodule   
+
+
+
 
 // --------------------------------------------------------------------------------------------------------------------------------
 // 82S09            64 X 9 RAM      Color RAM
@@ -273,7 +299,7 @@ module quad_decoder
 (
    input clk, reset_n,
    input A, B, 
-   output reg [7:0] count
+   output [7:0] count
 );
 
 reg [2:0] a_delayed, b_delayed;
@@ -283,14 +309,15 @@ always @(posedge clk) b_delayed <= {b_delayed[1:0], B};
 wire ce = a_delayed[1] ^ a_delayed[2] ^ b_delayed[1] ^ b_delayed[2];
 wire dir = a_delayed[1] ^ b_delayed[2];
 
+reg [8:0] counter;
 always @(posedge clk or negedge reset_n)
 begin
    if (~reset_n)
-      count <= 0;
+      counter <= 0;
    else if(ce)
       begin
-         if(dir) count<=count + 8'b00000001; else count<=count - 8'b00000001;
+         if(dir) counter <= counter + 9'b000000001; else counter <= counter - 9'b000000001;
       end
 end
-
+assign count = counter[8:1];
 endmodule

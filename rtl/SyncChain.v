@@ -26,9 +26,8 @@ begin
       if (ce5)
       begin
          hcount <= #1  hcount + 9'b000000001;
-         
-         if (hcount==320-1) hcount <= #1 9'b000000000;
-         if (hcount==256-1) begin vcount <= #1 vcount + 8'b00000001; HSYNC <= #1 0; end
+        
+         if (hcount==320-1) begin hcount <= #1 9'b000000000; vcount <= #1 vcount + 8'b00000001; HSYNC <= #1 0; end
 
          if (hcount==272-1) HSYNC <= #1 1'b1;
          if (hcount==304-1) HSYNC <= #1 1'b0;

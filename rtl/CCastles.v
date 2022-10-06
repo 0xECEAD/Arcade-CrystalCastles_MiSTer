@@ -25,30 +25,18 @@ module CCastles
    // Sound
    output [7:0]  SOUT,
 
-   // Debug
-   //output [15:0] DEBUG_BA,
-   //output        DEBUG_RW,
-   //output [7:0]  DEBUG_DO,
-   //output [7:0]  DEBUG_DI,
-   
    // User Port
    input   [6:0] USER_IN,
    output  [6:0] USER_OUT
 );
 
-//assign DEBUG_BA = BA;
-//assign DEBUG_RW = BRWn;
-//assign DEBUG_DO = BD;
-//assign DEBUG_DI = DI;
 
-
-
-wire ce5, ce1H, ce2H, ce2Hd, ce2Hd2, ce2Hd3, ce2Hd4;
+wire ce5, ce1H, ce2H, ce2Hd, ce2Hd2, ce2Hd3, ce2Hd4, ce2Hd5, cm2H;
 Clock clkgen
 (
    .clk(clk), .reset_n(reset_n),
-   .ce5(ce5), .ce1H(ce1H), .ce2H(ce2H), 
-   .ce2Hd(ce2Hd), .ce2Hd2(ce2Hd2), .ce2Hd3(ce2Hd3), .ce2Hd4(ce2Hd4)
+   .ce5(ce5), .ce1H(ce1H), .ce2H(ce2H), .cm2H(cm2H),
+   .ce2Hd(ce2Hd), .ce2Hd2(ce2Hd2), .ce2Hd3(ce2Hd3), .ce2Hd4(ce2Hd4), .ce2Hd5(ce2Hd5)
 );
 
 wire IRQCLK;
@@ -217,15 +205,27 @@ DynamicRam dram
    .BIT(BIT)
 );
 
+wire LD1n, LD2n, CL1n, CL2n, SHFT0, SHFT1, CK1, DIP2;
+PositionControl pc
+(
+   .clk(clk), .ce(ce5), .ce2Hd4(ce2Hd4),
+   .HC(hc), .VC(vc), .PLAYER2(PLAYER2),
+   .LD1n(LD1n), .LD2n(LD2n),
+   .CL1n(CL1n), .CL2n(CL2n),
+   .SHFT0(SHFT0), .SHFT1(SHFT1),
+   .CK1(CK1), .DIP2(DIP2)
+);
 
+
+wire [15:0] SR;
 WorkingRam sram
 (
-   .clk(clk), .ce2Hd(ce2Hd),
-   .BA(BA),
-   .SRAMn(SRAMn), .BRWn(BRWn),
-   //.hcount(hc), .BUF1BUF2n(BUF1BUF2n),
+   .clk(clk), .cm2H(cm2H), .ce2Hd5(ce2Hd5),
+   .BA(BA), .SRAMn(SRAMn), .BRWn(BRWn),
+   .HC(hc), .BUF1BUF2n(BUF1BUF2n),
    .data_to_sram(BD),
-   .data_from_sram(sram_to_cpu)
+   .data_from_sram(sram_to_cpu),
+   .SR(SR)
 );
 
 NonVolatileRam nvram
@@ -237,6 +237,45 @@ NonVolatileRam nvram
    .data_to_nvram(BD),
    .data_from_nvram(nvram_to_cpu)
 ); 
+
+wire MATCHn;
+wire [4:0] MOVADR;
+wire [2:0] AR;
+MotionObjectPictureRom mopr
+(
+   .clk(clk), .ce5(ce5), .ce2Hd5(ce2Hd5),
+   .CK1(CK1), .PLAYER2(PLAYER2),
+   .addrlo(MOVADR), .MATCHn(MATCHn), .SHFT0(SHFT0), .SHFT1(SHFT1),
+   .SR(SR), .AR(AR)
+);
+
+MotionObjectVerticalControl movc
+(
+   .clk(clk), .ce2Hd5(ce2Hd5),
+   .SR(SR), .VC(vc), .CK1(CK1), .PLAYER2(PLAYER2),
+   .addr(MOVADR), .MATCHn(MATCHn)
+);
+
+wire [7:0] MOH1ADR, MOH2ADR;
+MotionObjectHorizontalControl mohc
+(
+   .clk(clk), .ce5(ce5), .SR(SR), 
+   .LD1n(LD1n), .LD2n(LD2n),
+   .CL1n(CL1n), .CL2n(CL2n),
+   .addr1(MOH1ADR), .addr2(MOH2ADR)
+);
+
+wire MPI;
+wire [2:0] MV;
+MotionObjectBuffer mob
+(
+   .clk(clk), .ce5(ce5), .ce2Hd5(ce2Hd5),
+   .CK1(CK1), .SR7(SR[7]),
+   .AR(AR), .DIP2(DIP2),
+   .addr1(MOH1ADR), .addr2(MOH2ADR),
+   .MPI(MPI), .MV(MV)
+);
+
 
 wire tb1VD,tb1VC,tb1HD,tb1HC;
 LETA tb
@@ -269,7 +308,7 @@ ColorMemory cmem
    .clk(clk), .ce5(ce5),
    .CRAMn(CRAMn), .BD(BD), .BA(BA[5:0]),
    
-   .MV(4'b1111),
+   .MPI(MPI), .MV(MV),
    .BIT(BIT),
   
    .o(rgb_data)
