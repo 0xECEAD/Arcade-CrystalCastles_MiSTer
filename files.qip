@@ -25,6 +25,11 @@ set_global_assignment -name VERILOG_FILE rtl/HorizontalScrolling.v
 set_global_assignment -name VERILOG_FILE rtl/AudioOutput.v
 set_global_assignment -name VERILOG_FILE rtl/WorkingRam.v
 set_global_assignment -name VERILOG_FILE rtl/NonVolatileRam.v
+set_global_assignment -name VERILOG_FILE rtl/PositionControl.v
+set_global_assignment -name VERILOG_FILE rtl/MotionObjectBuffer.v
+set_global_assignment -name VERILOG_FILE rtl/MotionObjectHorizontalControl.v
+set_global_assignment -name VERILOG_FILE rtl/MotionObjectPictureRom.v
+set_global_assignment -name VERILOG_FILE rtl/MotionObjectVerticalControl.v
 set_global_assignment -name VERILOG_FILE rtl/uart_tx.v
 set_global_assignment -name VERILOG_FILE rtl/uart_rx.v
 set_global_assignment -name VHDL_FILE rtl/Pokey/syncreset_enable_divider.vhd

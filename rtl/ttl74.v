@@ -281,6 +281,31 @@ endmodule
 // --------------------------------------------------------------------------------------------------------------------------------
 // 74ls194  4-bit bidirectional universal shift register
 
+module ls194
+(
+   input clear_n,
+   input clk,
+   input s0,s1,
+   input r,l,
+   input [3:0] p,
+   output reg [3:0] q
+);
+
+always @(posedge clk or negedge clear_n) 
+   begin
+      if(!clear_n)
+         q <= #1 4'b0000;
+      else case ({s1, s0})
+         2'b00: q <= #1 q;
+         2'b01: q <= #1 {q[2:0],r};
+         2'b10: q <= #1 {l, q[3:1]};
+         2'b11: q <= #1 p;
+      endcase
+   end
+endmodule
+
+
+
 // --------------------------------------------------------------------------------------------------------------------------------
 // 74ls257  quad 2-line to 1-line data selector/multiplexer, non-inverting, TS
 
@@ -320,6 +345,24 @@ endmodule
 
 // --------------------------------------------------------------------------------------------------------------------------------
 // 74ls283   4-bit binary full adder (has carry in function)
+
+module ls283
+(
+   input [3:0] a,
+   input [3:0] b,
+   input ci,
+   
+   output reg [3:0] sum,
+   output reg co
+);
+
+always @(*) 
+   begin
+      {co, sum} = a + b + ci;
+   end
+endmodule
+
+
 
 // --------------------------------------------------------------------------------------------------------------------------------
 // 74ls298   quad 2-input multiplexer, storage 
@@ -409,6 +452,28 @@ endmodule
 
 // --------------------------------------------------------------------------------------------------------------------------------
 // 137199-001      55ns TriState SRAM (1k x 4b)
+
+module moram
+(
+   input clk,
+   input we_n, cs_n,
+   input [7:0] addr,
+   input [3:0] din,
+   output reg [3:0] dout
+);
+   reg [3:0] mem [0:255];
+
+   always @(posedge clk) 
+   begin
+      if (~we_n & ~cs_n) 
+         mem[addr] <= din;
+      else
+         dout <= cs_n ? 4'b1111 : mem[addr];
+   end
+
+endmodule   
+
+
 
 // --------------------------------------------------------------------------------------------------------------------------------
 // 82S09            64 X 9 RAM
@@ -587,3 +652,59 @@ assign snd = {2'b00,ch0}+{2'b00,ch1}+{2'b00,ch2}+{2'b00,ch3};
 endmodule
 
 
+// --------------------------------------------------------------------------------------------------------------------------------
+// LETA
+module LETA
+(
+   input clk, reset_n,
+   input X1, Y1, X2, Y2, X3, Y3, X4, Y4,
+   input [1:0] addr,
+   output reg [7:0] data
+);
+
+wire [7:0] data1,data2,data3,data4;
+quad_decoder qd1 ( .clk(clk), .reset_n(reset_n), .A(X1), .B(Y1), .count(data1));
+quad_decoder qd2 ( .clk(clk), .reset_n(reset_n), .A(X2), .B(Y2), .count(data2));
+quad_decoder qd3 ( .clk(clk), .reset_n(reset_n), .A(X3), .B(Y3), .count(data3));
+quad_decoder qd4 ( .clk(clk), .reset_n(reset_n), .A(X4), .B(Y4), .count(data4));
+
+always @(posedge clk)
+begin
+  case(addr)
+    2'b00: data = data1;
+    2'b01: data = data2;
+    2'b10: data = data3;
+    2'b11: data = data4;
+  endcase
+end
+
+endmodule
+
+// --------------------------------------------------------------------------------------------------------------------------------
+// Quadrature decoder
+
+module quad_decoder
+(
+   input clk, reset_n,
+   input A, B, 
+   output reg [7:0] count
+);
+
+reg [2:0] a_delayed, b_delayed;
+always @(posedge clk) a_delayed <= {a_delayed[1:0], A};
+always @(posedge clk) b_delayed <= {b_delayed[1:0], B};
+
+wire ce = a_delayed[1] ^ a_delayed[2] ^ b_delayed[1] ^ b_delayed[2];
+wire dir = a_delayed[1] ^ b_delayed[2];
+
+always @(posedge clk or negedge reset_n)
+begin
+   if (~reset_n)
+      count <= 0;
+   else if(ce)
+      begin
+         if(dir) count<=count + 8'b00000001; else count<=count - 8'b00000001;
+      end
+end
+
+endmodule

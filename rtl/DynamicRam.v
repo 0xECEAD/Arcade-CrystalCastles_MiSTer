@@ -68,7 +68,7 @@ begin
    ic5H_5J <= #1 lo_byte;
 end
 
-always @(posedge CLK5n)
+always @(negedge CLK5n)
 begin
    if (HL[1])
       BIT <= #1 HL[0] ? ic5H_5J[7:4]  : ic5H_5J[3:0];

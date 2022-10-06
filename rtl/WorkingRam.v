@@ -7,18 +7,19 @@ module WorkingRam
    input BUF1BUF2n,
    
    input [7:0] data_to_sram,
-   output [7:0] data_from_sram  
+   output [7:0] data_from_sram,
+   output [15:0] SR
 );
    
 wire [3:0] ic6H = B2H ? { SRAMn, BA[11:9] } : 4'b1111;
 wire [3:0] ic6F = B2H ? BA[8:5] : {BUF1BUF2n,hcount[8:6]};
 wire [3:0] ic6E = B2H ? BA[4:1] : hcount[5:2];
 wire [10:0] addr = { ic6H[2:0], ic6F, ic6E };
-//wire w7H_6B6D = ~ic6H[3] & ~BRWn;
-wire SRHn = ~( ~BA[0] & ~ic6H[3] );
-wire SRHWn = ~( ~SRHn & ~WRITEn ); 
-wire SRLn = ~( BA[0] & ~ic6H[3] );
-wire SRLWn = ~( ~SRLn & ~WRITEn ); 
+
+wire SRHn = ~( BA[0] & ~ic6H[3] );        // ic6A
+wire SRHWn = ~( ~SRHn & ~WRITEn );        // ic6A
+wire SRLn = ~( ~BA[0] & ~ic6H[3] );       // ic6A
+wire SRLWn = ~( ~SRLn & ~WRITEn );        // ic6A
 
 wire [7:0] data_from_6B, data_from_6D;
 
@@ -41,6 +42,6 @@ sram6116 #(.INIT_FILE("empty2k.ram")) ic6D
 );
 
 assign data_from_sram = SRHn ? data_from_6B : data_from_6D;
+assign SR = { data_from_6D , data_from_6B };
 
 endmodule
-

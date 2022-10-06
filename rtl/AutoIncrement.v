@@ -88,4 +88,7 @@ ls157 ic2L
    .y(DRBA[14:11])
 ); 
 
+wire [7:0] hcount = {w3N_2N,w3P_2P,PIXB,PIXA};
+wire [7:0] vcount = {w3L_2L,w3M_2M};
+
 endmodule

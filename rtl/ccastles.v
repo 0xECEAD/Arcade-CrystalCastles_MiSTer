@@ -75,7 +75,7 @@ module ccastles
 
    wire H1n = ~hc[0];
    wire H2 = hc[1];           // 1.25 MHz
-   wire [7:0] rom_to_cpu, sbus_to_cpu, sram_to_cpu, bmr_to_cpu, dram_to_cpu, nvram_to_cpu, pokey_to_cpu;
+   wire [7:0] rom_to_cpu, sbus_to_cpu, sram_to_cpu, bmr_to_cpu, dram_to_cpu, nvram_to_cpu, pokey_to_cpu, leta_to_cpu;
    wire [7:0] bmw_to_dram;
    reg [7:0] DIprep, DIhold;
    wire [7:0] BD;
@@ -93,7 +93,9 @@ module ccastles
                DIprep <= #1 sram_to_cpu;
             else if (NVRAMn == 1'b0)         // 0x9000-0x93FF
                DIprep <= #1 nvram_to_cpu;
-            else if (IN0n == 1'b0)           // 0x9400-0x97FF
+            else if (~IN0n & ~BA[9])         // 0x9400-0x95FF
+               DIprep <= #1 leta_to_cpu;
+            else if (~IN0n & BA[9])          // 0x9600-0x97FF
                DIprep <= #1 sbus_to_cpu;
             else if (CIOn == 1'b0)           // 0x9800-0x9BFF
                DIprep <= #1 pokey_to_cpu;
@@ -275,16 +277,27 @@ module ccastles
       .BIT(BIT)
    );
    
-   // PositionControl
+   wire LD1n, LD2n, CL1n, CL2n, SHFT0, SHFT1, CK1, DIP2;
+   PositionControl pc
+   (
+      .HC(hc), .VC(vc), .PLAYER2(PLAYER2), .CLK5n(CLK5n),
+      .LD1n(LD1n), .LD2n(LD2n),
+      .CL1n(CL1n), .CL2n(CL2n),
+      .SHFT0(SHFT0), .SHFT1(SHFT1),
+      .CK1(CK1), .DIP2(DIP2)
+   );
    
+   wire [15:0] SR;
    WorkingRam sram
    (
       .clk(clk),
       .SRAMn(SRAMn), .BRWn(BRWn), .B2H(H2), .WRITEn(WRITEn), 
       .BA(BA), .hcount(hc), .BUF1BUF2n(BUF1BUF2n),
       .data_to_sram(BD),
-      .data_from_sram(sram_to_cpu)
+      .data_from_sram(sram_to_cpu),
+      .SR(SR)
    );
+
 
    NonVolatileRam nvram
    (
@@ -297,10 +310,40 @@ module ccastles
       .data_from_nvram(nvram_to_cpu)
    ); 
    
-   // MotionObjectPictureROM
-   // MotionObjectVerticalControl
-   // MotionObjectBuffer
-   // MotionObjectHorizontalControl
+   wire MATCHn;
+   wire [4:0] MOVADR;
+   wire [2:0] AR;
+   MotionObjectPictureRom mopr
+   (
+      .clk(clk), .CLK5(~CLK5n), .CK1(CK1), .PLAYER2(PLAYER2),
+      .addrlo(MOVADR), .MATCHn(MATCHn), .SHFT0(SHFT0), .SHFT1(SHFT1),
+      .SR(SR), .AR(AR)
+   );
+   
+   MotionObjectVerticalControl movc
+   (
+      .SR(SR), .VC(vc), .CK1(CK1), .PLAYER2(PLAYER2),
+      .addr(MOVADR), .MATCHn(MATCHn)
+   );
+   wire [7:0] MOH1ADR, MOH2ADR;
+   MotionObjectHorizontalControl mohc
+   (
+      .CLK5n(CLK5n), .SR(SR), 
+      .LD1n(LD1n), .LD2n(LD2n),
+      .CL1n(CL1n), .CL2n(CL2n),
+      .addr1(MOH1ADR), .addr2(MOH2ADR)
+   );
+   
+   wire MPI;
+   wire [2:0] MV;
+   MotionObjectBuffer mob
+   (
+      .clk(clk), .CLK5n(CLK5n),
+      .CK1(CK1), .SR7(SR[7]),
+      .AR(AR), .DIP2(DIP2),
+      .addr1(MOH1ADR), .addr2(MOH2ADR),
+      .MPI(MPI), .MV(MV)
+   );
    
    wire [8:0] clr_data;
    ColorMemory cmem
@@ -312,7 +355,7 @@ module ccastles
       .BD(BD),
       .BA(BA[5:0]),
       
-      .MPI(1'b1), .MV0(1'b1), .MV1(1'b1), .MV2(1'b1),
+      .MPI(MPI), .MV(MV),
       .BIT(BIT),
       
       .o(clr_data)
@@ -326,7 +369,16 @@ module ccastles
       .RGB(RGBout)
    );
 
-   // TrackBallInput
+   wire tb1VD,tb1VC,tb1HD,tb1HC;
+   LETA tb
+   (
+      .clk(clk), .reset_n(reset_n),
+      .X1(tb1VD), .Y1(tb1VC), .X2(tb1HD), .Y2(tb1HC), 
+      .X3(), .Y3(), .X4(), .Y4(),  
+      .addr(BA[1:0]),
+      .data(leta_to_cpu)
+
+   );
 
    AudioOutput ao
    (
@@ -406,13 +458,16 @@ module ccastles
    );
 
    assign RX = USER_IN[0];
-   assign USER_OUT = { 1'b0, uart_rx_avail, RX, VBlank, HBlank, TX, 1'b1 };
+   assign USER_OUT = { 1'b0, 1'b1, 1'b1, 1'b1, 1'b1, TX, 1'b1 };
 `else
-
-    assign USER_OUT = { 1'b0, 1'b0, 1'b0, VBlank, HBlank, 1'b0, 1'b0 };
-    
+     assign USER_OUT = { 1'b0, 1'b1, 1'b1, 1'b1, 1'b1, 1'b1, 1'b1 };
+   
 `endif
 
    assign HBlank = HBLANK2;
+assign tb1VD = USER_IN[2];
+assign tb1VC = USER_IN[3];
+assign tb1HD = USER_IN[4];
+assign tb1HC = USER_IN[5];
 
 endmodule

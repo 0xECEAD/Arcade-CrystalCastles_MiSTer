@@ -7,7 +7,8 @@ module ColorMemory
    input [7:0] BD,
    input [5:0] BA,
       
-   input MPI, MV0, MV1, MV2,
+   input MPI, 
+   input [2:0] MV,
    input [3:0] BIT,
    
    output [8:0] o
@@ -17,6 +18,7 @@ wire we_n = ~(~CRAMn & ~CLK5n);
 wire w10K_10L10M, w10K_10R;
 wire w10M_10Ra, w10M_10Rb;
 wire w10L_10Ra, w10L_10Rb;
+wire [8:0] rbg;
 
 cram82S09 ic10R
  (
@@ -24,8 +26,10 @@ cram82S09 ic10R
    .ce_n(1'b0), .we_n(we_n),
    .addr(addr),
    .din( {BA[5], BD} ),
-   .dout(o)
+   .dout(rbg)
 );
+
+assign o = { ~rbg[8:6], ~rbg[2:0], ~rbg[5:3] };
 
 ls153 ic10Mb
 (
@@ -41,7 +45,7 @@ ls153 ic10Ma
 (
    .A(w10K_10L10M),
    .B(CRAMn),
-   .C3(MV2),
+   .C3(MV[2]),
    .C2(BIT[2]),
    .C1(BA[2]),
    .C0(BA[2]),
@@ -52,7 +56,7 @@ ls153 ic10Lb
 (
    .A(w10K_10L10M),
    .B(CRAMn),
-   .C3(MV1),
+   .C3(MV[1]),
    .C2(BIT[1]),
    .C1(BA[1]),
    .C0(BA[1]),
@@ -62,7 +66,7 @@ ls153 ic10La
 (
    .A(w10K_10L10M),
    .B(CRAMn),
-   .C3(MV0),
+   .C3(MV[0]),
    .C2(BIT[0]),
    .C1(BA[0]),
    .C0(BA[0]),
@@ -75,7 +79,7 @@ wire [5:0] addr = { 1'b0, w10K_10R, w10M_10Rb, w10M_10Ra, w10L_10Rb, w10L_10Ra }
 rom82S129 #(.INIT_FILE("82s129-136022-111.10k.rom")) ic10K
 (
    .clk(CLK10),
-   .A({1'b0, CRAMn, BA[4], MV2, MV1, MV0, MPI, BIT[3] }),
+   .A({1'b0, CRAMn, BA[4], MV[2], MV[1], MV[0], MPI, BIT[3] }),
    .CE_n(1'b0),
    .O({dmy1, dmy0, w10K_10L10M, w10K_10R})
 );
