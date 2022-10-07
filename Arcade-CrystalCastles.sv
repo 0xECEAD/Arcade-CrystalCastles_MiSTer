@@ -222,7 +222,7 @@ localparam CONF_STR = {
 	"O3,Cabinet,Upright,Cocktail;",
 	"-;",
 	"R0,Reset;",
-	"J1,Jump/Start 1,Jump/Start 2,Coin;",
+	"J1,Jump/Start 1,Jump/Start 2,Coin Left,Coin Right,Coin Aux,Slam;",
 	"V,v",`BUILD_DATE 
 };
 
@@ -288,6 +288,9 @@ arcade_video #(256,9) arcade_video
 wire m_startjump1  = joystick_0[4];
 wire m_startjump2  = joystick_0[5];
 wire m_coin1p   = joystick_0[6];
+wire m_coin2p   = joystick_0[7];
+wire m_coinAux  = joystick_0[8];
+wire m_slam  = joystick_0[9];
 
 wire LIGHTBULB;
 wire reset = RESET | status[0] | buttons[1];
@@ -303,7 +306,7 @@ CCastles ccastles
    .COCKTAIL(status[3]),
 	
    .STARTJMP1(m_startjump1), .STARTJMP2(m_startjump2),
-   .COINL(m_coin1p), .COINR(1'b0),
+   .COINL(m_coin1p), .COINR(m_coin2p), .COINA(m_coinAux), .SLAM(m_slam),
 	.LIGHTBULB(LIGHTBULB),
 	
 	.HBLANK(HBlank),
