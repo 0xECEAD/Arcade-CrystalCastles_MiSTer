@@ -10,7 +10,7 @@ module CCastles
    input         COCKTAIL,
    // Buttons
    input         STARTJMP1, STARTJMP2,
-   input         COINL, COINR,
+   input         COINL, COINR, COINA, SLAM,
    // Outputs
    output        STARTLED1, STARTLED2,
    output        LIGHTBULB,
@@ -93,7 +93,7 @@ MicroProcessor cpu
 
 
 wire [7:0] rom_to_cpu, sram_to_cpu, bmr_to_cpu, dram_to_cpu, nvram_to_cpu, pokey_to_cpu, leta_to_cpu;
-wire [7:0] playerSwitches = { ~STARTJMP2, ~(STARTJMP1|tb1JMP), VBLANK, ~SELFTEST, 1'b1, 1'b1, ~(COINL|tb1COIN), ~COINR};         // ic11C
+wire [7:0] playerSwitches = { ~STARTJMP2, ~(STARTJMP1|tb1JMP), VBLANK, ~SELFTEST, ~SLAM, ~COINA, ~(COINL|tb1COIN), ~COINR};         // ic11C
 
 always @(posedge clk) 
 begin
