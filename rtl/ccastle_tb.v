@@ -23,36 +23,29 @@ module ccastles_tb();
    end
 
 
-  
    // Generate Stimuli
-   //reg [15:0] BA; always @(posedge clk10) if (~reset_n) begin H2 <= 0; BA <= 0; end else  H2 <= #1 ~H2;
-   //reg H2; always @(posedge H2) BA <= #1 BA + 16;
+   // reg tb1HA, tb1HB;
+   // always begin
+      // #1000       tb1HA = 0; tb1HB = 0;
+      // #1000       tb1HA = 1; tb1HB = 0;
+      // #1000       tb1HA = 1; tb1HB = 1;
+      // #1000       tb1HA = 0; tb1HB = 1;
+   // end
+   
 
    // Instantiate the unit under test (UUT)
-   ccastles uut(
+   CCastles uut
+   (
       .clk(clk10),
       .reset_n(reset_n),
       
       .WDISn(1'b1),
-      .SELFTEST(1'b1),
-      .COCKTAIL(1'b0),
+      .SELFTEST(1'b1), .COCKTAIL(1'b0),
       .STARTJMP1(1'b0), .STARTJMP2(1'b0),
-      .COINL(1'b0), .COINR(1'b0)
+      .COINL(1'b0), .COINR(1'b0),
       
+      .USER_IN( { 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0 } )
    );
-
-   // AddresDecoder addrdecod
-   // (
-      // .RESETn(reset_n), 
-      // .CLK10(clk10), 
-      // .BA(BA),
-      // .WRITEn(1'b0),
-      // .BD3(1'b0),
-      // .BH2(H2),
-      // .BITMDn(1'b1),
-      // .PIXB(1'b0),
-      // .BRWn(1'b1)
-   // );
 
     
    // Run simulation (output to .vcd file)
@@ -62,9 +55,11 @@ module ccastles_tb();
       $dumpfile("ccastle_tb.vcd");
       $dumpvars(0, ccastles_tb);
         
-      // Wait for 18 ms (16.39 ms per frames)
-      //#18000000
-      #4000000
+      // Wait for 84 ms (16.39 ms per frams) about 5 frames
+      //#84000000
+
+      // Wait for 1 ms
+      #1000000
         
       // Notify and end simulation
       $display("Finished!");

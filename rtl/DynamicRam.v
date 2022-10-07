@@ -1,81 +1,66 @@
+// Timing:
+//
+// Note: synchronous memory: read data follows address in next clock cycle
+//
+//    ce5    ce2H  ce2Hd ce2Hd2  ce2Hd3       |  addr
+                                           
+// 0   0       0     1     0       0          |  cpu/bm         BIT <= vmem lo
+// 1   1       0     0     1       0          |  vs/hs          cpu_read <= dout
+// 2   0       0     0     0       1          |  cpu/bm         BIT <= vmem hi          if(write)   WE=1, data_to_dram = BD or BMR_TO_DRAM
+// 3   1       0     0     0       0          |  vs/hs          
+// 4   0       0     0     0       0          |  cpu/bm         BIT <= vmem lo
+// 5   1       0     0     0       0          |  vs/hs
+// 6   0       0     0     0       0          |  cpu/bm         BIT <= vmem hi
+// 7   1       1     0     0       0          |  vs/hs
+//    
+// 
+// 
+// 
+
+
+
+
+
+
 module DynamicRam
 (
-   input clk,
-   input RASn, CASn, DRWR,
-   input [7:0] DRAB,
-   input DRLn, DRHn,
-   input WP0n, WP1n, WP2n, WP3n,
+   input clk, ce5, ce2Hd2, ce2Hd3,
+   input [14:0] DRBA,
+   input DRAMn, BRWn, BITMDn, PIXA,
    
-   input [7:0] data_to_dram,
-   output [7:0] data_from_dram,
+   input [7:0] BD,
+   output [7:0] dram_to_cpu,
 
-   input PLAYER2, CLK5n,
-   input [7:0] HL,
+   input [7:0] hs,
+   input [7:0] vs,
+   input PLAYER2,
    output reg [3:0] BIT
 );
 
-wire [3:0] data_from_4H;
-dram4416 #(.INIT_FILE("empty16k.ram")) ic4H
+wire [7:0] bmw_to_dram = PIXA ? { BD[7:4], cpu_read[3:0] } : { cpu_read[7:4], BD[7:4]};
+wire [7:0] data_to_dram = ~BITMDn ? bmw_to_dram : BD;
+
+wire WE = ~BRWn & ce2Hd3 & ((BITMDn & ~DRAMn) | (~BITMDn & DRBA[14:12] != 3'b000));
+
+wire [14:0] addr = ce5 ? {vs,hs[7:1]} : DRBA;
+
+wire [7:0] dout;
+dram #(.INIT_FILE("empty32k.ram")) ic4H4J4F4E
 (
    .clk(clk),
-   .rasn(RASn), .casn(CASn),
-   .gn(DRWR), .wn(WP0n),
-   .a(DRAB), 
-   .din(data_to_dram[3:0]),
-   .dout(data_from_4H)
-);
-wire [3:0] data_from_4J;
-dram4416 #(.INIT_FILE("empty16k.ram")) ic4J
-(
-   .clk(clk),
-   .rasn(RASn), .casn(CASn),
-   .gn(DRWR), .wn(WP1n),
-   .a(DRAB), 
-   .din(data_to_dram[7:4]),
-   .dout(data_from_4J)
-);
-wire [3:0] data_from_4F;
-dram4416 #(.INIT_FILE("empty16k.ram")) ic4F
-(
-   .clk(clk),
-   .rasn(RASn), .casn(CASn),
-   .gn(DRWR), .wn(WP2n),
-   .a(DRAB), 
-   .din(data_to_dram[3:0]),
-   .dout(data_from_4F)
-);
-wire [3:0] data_from_4E;
-dram4416 #(.INIT_FILE("empty16k.ram")) ic4E
-(
-   .clk(clk),
-   .rasn(RASn), .casn(CASn),
-   .gn(DRWR), .wn(WP2n),
-   .a(DRAB), 
-   .din(data_to_dram[7:4]),
-   .dout(data_from_4E)
+   .we(WE),
+   .addr(addr), 
+   .din(data_to_dram),
+   .dout(dout)
 );
 
-wire [7:0] lo_byte = { data_from_4J, data_from_4H };
-wire [7:0] hi_byte = { data_from_4E, data_from_4F };
-assign data_from_dram = DRHn ? lo_byte : hi_byte;
-
-wire clk2 = PLAYER2 ^ HL[1];
-
-reg [7:0] ic5F_5J, ic5H_5J;
-always @(posedge clk2)
+reg [7:0] cpu_read;
+always @(posedge clk)
 begin
-   ic5F_5J <= #1 hi_byte;
-   ic5H_5J <= #1 lo_byte;
+   if (ce2Hd2) cpu_read <= #1 dout; 
+   if (~ce5) BIT <= #1 hs[0] ? dout[3:0] : dout[7:4];
 end
 
-always @(negedge CLK5n)
-begin
-   if (HL[1])
-      BIT <= #1 HL[0] ? ic5H_5J[7:4]  : ic5H_5J[3:0];
-   else 
-      BIT <= #1 HL[0] ? ic5F_5J[7:4]  : ic5F_5J[3:0];
-end
-
-
+assign dram_to_cpu = ~BITMDn ? { PIXA ? cpu_read[7:4] : cpu_read[3:0], 4'b000 } : cpu_read;
 
 endmodule

@@ -1,47 +1,44 @@
 module WorkingRam
 (
-   input clk,
-   input SRAMn, BRWn, B2H, WRITEn, 
+   input clk, cm2H, ce2Hd5,
    input [15:0] BA,
-   input [8:0] hcount,
+   input SRAMn, BRWn,
+   
+   input [8:0] HC,
    input BUF1BUF2n,
    
    input [7:0] data_to_sram,
    output [7:0] data_from_sram,
+   
    output [15:0] SR
 );
    
-wire [3:0] ic6H = B2H ? { SRAMn, BA[11:9] } : 4'b1111;
-wire [3:0] ic6F = B2H ? BA[8:5] : {BUF1BUF2n,hcount[8:6]};
-wire [3:0] ic6E = B2H ? BA[4:1] : hcount[5:2];
-wire [10:0] addr = { ic6H[2:0], ic6F, ic6E };
+wire [10:0] addr = cm2H ? BA[11:1] : {3'b111, BUF1BUF2n, HC[8:2]} ;
 
-wire SRHn = ~( BA[0] & ~ic6H[3] );        // ic6A
-wire SRHWn = ~( ~SRHn & ~WRITEn );        // ic6A
-wire SRLn = ~( ~BA[0] & ~ic6H[3] );       // ic6A
-wire SRLWn = ~( ~SRLn & ~WRITEn );        // ic6A
+wire WE6B = ~SRAMn & ~BA[0] & ~BRWn & ce2Hd5;
+wire WE6D = ~SRAMn & BA[0] & ~BRWn & ce2Hd5;
 
 wire [7:0] data_from_6B, data_from_6D;
-
-sram6116 #(.INIT_FILE("empty2k.ram")) ic6B
+sram #(.INIT_FILE("empty2k.ram")) ic6B
 (
    .clk(clk),
-   .we_n(SRLWn),
+   .we(WE6B),
    .addr(addr), 
    .din(data_to_sram),
    .dout(data_from_6B)
 );
 
-sram6116 #(.INIT_FILE("empty2k.ram")) ic6D
+sram #(.INIT_FILE("empty2k.ram")) ic6D
 (
    .clk(clk),
-   .we_n(SRHWn),
+   .we(WE6D),
    .addr(addr), 
    .din(data_to_sram),
    .dout(data_from_6D)
 );
 
-assign data_from_sram = SRHn ? data_from_6B : data_from_6D;
+assign data_from_sram = BA[0] ? data_from_6D : data_from_6B;
 assign SR = { data_from_6D , data_from_6B };
 
 endmodule
+

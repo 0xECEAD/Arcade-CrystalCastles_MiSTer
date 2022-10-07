@@ -1,55 +1,30 @@
 module MotionObjectHorizontalControl
 (
-   input CLK5n,
+   input clk, ce5,
    input [15:0] SR,
    input LD1n, LD2n, CL1n, CL2n,
-   output [7:0] addr1, addr2
+   output reg [7:0] addr1, addr2
 );
 
-   wire carry2;
-   ls163 ic10F
-   (
-      .load_n(LD2n),
-      .clr_n(CL2n),
-      .clk(CLK5n),
-      .p(SR[11:8]),
-      .ent(1'b1), 
-      .enp(1'b1),
-      .q(addr2[3:0]),
-      .rco(carry2)
-   );
-   ls163 ic10E
-   (
-      .load_n(LD2n),
-      .clr_n(CL2n),
-      .clk(CLK5n),
-      .p(SR[15:12]),
-      .ent(carry2), 
-      .enp(carry2),
-      .q(addr2[7:4])
-   );
+always @(posedge clk)         // ic10F, ic10E
+begin
+   if (~LD2n & ce5) 
+      addr2 <= #1 SR[15:8];
+   else if (~CL2n & ce5) 
+      addr2 <= #1 8'd6;
+   else if (ce5) 
+      addr2 <= #1 addr2 + 8'b00000001;
+end
 
-   wire carry1;
-   ls163 ic10D
-   (
-      .load_n(LD1n),
-      .clr_n(CL1n),
-      .clk(CLK5n),
-      .p(SR[11:8]),
-      .ent(1'b1), 
-      .enp(1'b1),
-      .q(addr1[3:0]),
-      .rco(carry1)
-   );
-   ls163 ic10C
-   (
-      .load_n(LD1n),
-      .clr_n(CL1n),
-      .clk(CLK5n),
-      .p(SR[15:12]),
-      .ent(carry1), 
-      .enp(carry1),
-      .q(addr1[7:4])
-   );
+
+always @(posedge clk)         // ic10D, ic10C
+begin
+   if (~LD1n & ce5) 
+      addr1 <= #1 SR[15:8];
+   else if (~CL1n & ce5) 
+      addr1 <= #1 8'd6;
+   else if (ce5) 
+      addr1 <= #1 addr1 + 8'b00000001;
+end
 
 endmodule

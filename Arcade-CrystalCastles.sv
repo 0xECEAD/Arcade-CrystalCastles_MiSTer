@@ -187,7 +187,7 @@ assign HDMI_FREEZE = 0;
 wire [7:0] AOUT;
 assign AUDIO_L = {AOUT,AOUT};
 assign AUDIO_R = AUDIO_L;
-assign AUDIO_S = 0; // unsigned PCM
+assign AUDIO_S = 0; // unsigned PCM 
 assign AUDIO_MIX = 0;
 
 assign LED_DISK = 0;
@@ -195,6 +195,15 @@ assign LED_POWER = 0;
 assign BUTTONS = 0;
 
 assign LED_USER = LIGHTBULB;
+
+
+//////////////////////////////////////////////////////////////////
+
+//assign {SDRAM_A, SDRAM_BA, SDRAM_CLK, SDRAM_CKE, SDRAM_DQML, SDRAM_DQMH, SDRAM_nCAS, SDRAM_nRAS, SDRAM_nCS} = 'Z;
+//wire [15:0] DEBUG_BA;
+//wire DEBUG_RW;
+//assign SDRAM_DQ = DEBUG_BA;
+//assign SDRAM_nWE = DEBUG_RW;
 
 //////////////////////////////////////////////////////////////////
 
@@ -212,21 +221,19 @@ localparam CONF_STR = {
 	"O2,Self Test Mode,Off,On;",
 	"O3,Cabinet,Upright,Cocktail;",
 	"-;",
-	"J1,Jump/Start 1P,Coin P1;",
-	"T[0],Reset;",
-	"R[0],Reset and close OSD;",
+	"R0,Reset;",
+	"J1,Jump/Start 1,Jump/Start 2,Coin Left,Coin Right,Coin Aux,Slam;",
 	"V,v",`BUILD_DATE 
 };
 
 ////////////////////   HPS   /////////////////////
 
-wire        forced_scandoubler;
-wire        direct_video;
+wire         forced_scandoubler;
+wire         direct_video;
 wire   [1:0] buttons;
 wire [127:0] status;
-wire  [10:0] ps2_key;
-wire [21:0] gamma_bus;
-wire [15:0] joystick_0,joystick_1;
+wire  [21:0] gamma_bus;
+wire  [15:0] joystick_0;
 
 hps_io #(.CONF_STR(CONF_STR)) hps_io
 (
@@ -243,9 +250,7 @@ hps_io #(.CONF_STR(CONF_STR)) hps_io
 	.status(status),
 	.status_menumask({direct_video}),
 	
-	.ps2_key(ps2_key),
-	.joystick_0(joystick_0),
-	.joystick_1(joystick_1)
+	.joystick_0(joystick_0)
 );
 
 ///////////////////////   CLOCKS   ///////////////////////////////
@@ -280,39 +285,44 @@ arcade_video #(256,9) arcade_video
 	.fx(3'b000)
 );
 
-wire m_startjump1p  = joystick_0[4];
-wire m_coin1p   = joystick_0[5];
-wire m_startjump2p  = joystick_1[4];
-wire m_coin2p   = joystick_1[5];
+wire m_startjump1  = joystick_0[4];
+wire m_startjump2  = joystick_0[5];
+wire m_coin1p   = joystick_0[6];
+wire m_coin2p   = joystick_0[7];
+wire m_coinAux  = joystick_0[8];
+wire m_slam  = joystick_0[9];
 
 wire LIGHTBULB;
 wire reset = RESET | status[0] | buttons[1];
 
 
-ccastles ccastles
+CCastles ccastles
 (
 	.clk(clk_game),
 	.reset_n(~reset),
    
 	.WDISn(status[1]),
-   .SELFTEST(~status[2]),
+   .SELFTEST(status[2]),
    .COCKTAIL(status[3]),
 	
-   .STARTJMP1(m_startjump1p), .STARTJMP2(m_startjump2p),   
-   .COINL(m_coin1p), .COINR(m_coin2p),
+   .STARTJMP1(m_startjump1), .STARTJMP2(m_startjump2),
+   .COINL(m_coin1p), .COINR(m_coin2p), .COINA(m_coinAux), .SLAM(m_slam),
 	.LIGHTBULB(LIGHTBULB),
 	
-	.HBlank(HBlank),
-	.HSync(HSync),
-	.VBlank(VBlank),
-	.VSync(VSync),
+	.HBLANK(HBlank),
+	.HSYNC(HSync),
+	.VBLANK(VBlank),
+	.VSYNC(VSync),
 
    .SOUT(AOUT),
 
 	.RGBout(rgb),
-	
+   
 	.USER_IN(USER_IN),
 	.USER_OUT(USER_OUT)
+   
+   //.DEBUG_BA(DEBUG_BA),
+   //.DEBUG_RW(DEBUG_RW)
 );
 
 reg [1:0] cnt;

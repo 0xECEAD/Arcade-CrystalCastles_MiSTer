@@ -1,7 +1,7 @@
 module NonVolatileRam
 (
-   input clk,
-   input NVRAMn, WRphi2n,
+   input clk, ce2Hd, reset_n,
+   input NVRAMn, BRWn,
    input [7:0] BA,
 
    input DCOKn, STORE, RECALLn, SIREn,
@@ -10,24 +10,21 @@ module NonVolatileRam
    output [7:0] data_from_nvram
 );
 
-wire w5E_4B4D = ~(~NVRAMn & ~WRphi2n);
+wire WE = ~NVRAMn & ~BRWn & ce2Hd;
 
-nvram2212 ic4B
+nvram ic4B4D
 (
-   .clk(clk),
-   .we_n(w5E_4B4D),
-   .addr(BA), 
-   .din(data_to_nvram[3:0]),
-   .dout(data_from_nvram[3:0])
-);
-
-nvram2212 ic4D
-(
-   .clk(clk),
-   .we_n(w5E_4B4D),
-   .addr(BA), 
-   .din(data_to_nvram[7:4]),
-   .dout(data_from_nvram[7:4])
+   .clk(clk), .reset_n(reset_n),
+   
+   .store((STORE & SIREn)), .recall(~RECALLn & ~SIREn),
+   
+   // Implement nvram by having a shadow ram for storing (copy 256 bytes), it takes 10ms max on a real X2212, 
+   // and only 512 clock cycles in the FPGA (51.2 µs @ 10MHz).
+   // Recall takes 1 µs on the X2212, in the FPGA it just toggles to the shadow ram (in one clock cycle) and back.
+   
+   .we(WE), .addr(BA), 
+   .din(data_to_nvram),
+   .dout(data_from_nvram)
 );
 
 endmodule
