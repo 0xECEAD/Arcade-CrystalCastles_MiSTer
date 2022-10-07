@@ -1,6 +1,3 @@
-// `define RUNSIMULATION
-
-
 // --------------------------------------------------------------------------------------------------------------------------------
 // AM2764      8K x 8-Bit EPROM
 
@@ -25,7 +22,7 @@ endmodule
 // --------------------------------------------------------------------------------------------------------------------------------
 // TMS4416      16k x 4b DRAM (x4)     combined into single 32k x 8b SRAM
 
-module dram # ( parameter INIT_FILE = "init.txt" )
+module dram
  (
    input clk,
    input we,
@@ -42,19 +39,13 @@ begin
    else
       dout <= #1 mem[addr];
 end
-
-initial begin
-   $readmemh(INIT_FILE, mem);
-end
-
-
 endmodule   
 
 
 // --------------------------------------------------------------------------------------------------------------------------------
 // CDW6116      200ns TriState SRAM (2k x 8b)   
 
-module sram # ( parameter INIT_FILE = "init.txt" )
+module sram
 (
    input clk,
    input we, 
@@ -72,11 +63,6 @@ begin
    else
       dout <= mem[addr];
 end
-
-initial begin
-   $readmemh(INIT_FILE, mem);
-end
-  
 endmodule
 
 
@@ -217,30 +203,6 @@ module PokeyW
    input  [7:0]   p
 );
 
-`ifdef RUNSIMULATION
-
-reg [7:0] mem [0:15];
-reg [5:0] snd_o;
-reg [7:0] data_out;
-always @(posedge clk)
-begin
-   if (~rst_n)
-   begin
-      snd_o <= 0;
-   end
-end
-assign snd = snd_o;
-
-always @(posedge clk) 
-begin
-   if (we & cs) 
-      mem[ad] <= data_to_pokey;
-   else data_out <= mem[ad];
-end
-assign data_from_pokey = data_out;
-
-`else
-
 wire [3:0] ch0,ch1,ch2,ch3;
 pokey core 
 (
@@ -259,8 +221,6 @@ pokey core
    .CHANNEL_3_OUT(ch3)
 );
 assign snd = {2'b00,ch0}+{2'b00,ch1}+{2'b00,ch2}+{2'b00,ch3};
-
-`endif
 endmodule
 
 

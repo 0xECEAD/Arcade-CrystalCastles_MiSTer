@@ -45,7 +45,7 @@ wire WE = ~BRWn & ce2Hd3 & ((BITMDn & ~DRAMn) | (~BITMDn & DRBA[14:12] != 3'b000
 wire [14:0] addr = ce5 ? {vs,hs[7:1]} : DRBA;
 
 wire [7:0] dout;
-dram #(.INIT_FILE("empty32k.ram")) ic4H4J4F4E
+dram ic4H4J4F4E
 (
    .clk(clk),
    .we(WE),

@@ -19,7 +19,7 @@ wire WE6B = ~SRAMn & ~BA[0] & ~BRWn & ce2Hd5;
 wire WE6D = ~SRAMn & BA[0] & ~BRWn & ce2Hd5;
 
 wire [7:0] data_from_6B, data_from_6D;
-sram #(.INIT_FILE("empty2k.ram")) ic6B
+sram ic6B
 (
    .clk(clk),
    .we(WE6B),
@@ -28,7 +28,7 @@ sram #(.INIT_FILE("empty2k.ram")) ic6B
    .dout(data_from_6B)
 );
 
-sram #(.INIT_FILE("empty2k.ram")) ic6D
+sram ic6D
 (
    .clk(clk),
    .we(WE6D),

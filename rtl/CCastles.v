@@ -111,12 +111,6 @@ begin
             DI <= #1 playerSwitches;
          else if (~CIOn)                     // 0x9800-0x9BFF
             DI <= #1 pokey_to_cpu;
-`ifdef RUNDIAGNOSTIC               
-         else if (~UARTn & ~BA[0])
-            DI <= #1 uart_to_cpu;
-         else if (~UARTn & BA[0])
-            DI <= #1 {uart_rx_avail, 6'b000000, uart_tx_busy };
-`endif
       end  
    else 
       DI <= #1 dram_to_cpu;                  // 0x0000-0x7FFF, inc BITMODE
@@ -343,49 +337,7 @@ CoinCountOutput cco
 );
 
 
-`ifdef RUNDIAGNOSTIC
-
-// 10000000 / 115200 = 87 clocks per bit.
-parameter c_CLKS_PER_BIT = 87;
-
-wire RX, TX;
-wire uart_rx_done, uart_tx_busy;
-reg uart_rx_avail;
-wire [7:0] uart_to_cpu;
-
-always @(posedge clk or negedge reset_n) 
-begin
-   if(~reset_n)
-        uart_rx_avail <= #1 1'b0;
-   else if (~UARTn & BA[0] & ~BRWn)         // 0x9C01      write clears avail reg
-        uart_rx_avail <= #1 1'b0;
-   else if (uart_rx_done)
-        uart_rx_avail <= #1 1'b1;
-end
-
-uart_rx #(.CLKS_PER_BIT(c_CLKS_PER_BIT)) urx (
-   .i_Clock(clk),
-   .i_Rx_Serial(RX),
-   .o_Rx_DV(uart_rx_done),
-   .o_Rx_Byte(uart_to_cpu)
-);
-
-wire WE = ~UARTn & ~BRWn & ~uart_tx_busy && ce2Hd;
-uart_tx #(.CLKS_PER_BIT(c_CLKS_PER_BIT)) utx (
-   .i_Clock(clk),
-   .i_Tx_DV(WE),
-   .i_Tx_Byte(BD),
-   .o_Tx_Active(uart_tx_busy),
-   .o_Tx_Serial(TX),
-   .o_Tx_Done()
-);
-
-   assign RX = USER_IN[0];
-   assign USER_OUT = { 1'b0, 1'b1, 1'b1, 1'b1, 1'b1, TX, 1'b1 };
-`else
-    assign USER_OUT = { 1'b0, 1'b1, 1'b1, 1'b1, 1'b1, 1'b1, 1'b1 };
-`endif
-
+assign USER_OUT = { 1'b0, 1'b1, 1'b1, 1'b1, 1'b1, 1'b1, 1'b1 };
 wire tb1JMP = ~USER_IN[0];
 wire tb1COIN = ~USER_IN[1];
 assign tb1VD = USER_IN[2];
