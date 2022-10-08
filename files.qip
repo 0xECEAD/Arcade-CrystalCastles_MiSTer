@@ -26,15 +26,4 @@ set_global_assignment -name VERILOG_FILE rtl/SupportChips.v
 set_global_assignment -name VERILOG_FILE rtl/cpu_65c02.v
 set_global_assignment -name VERILOG_FILE rtl/alu.v
 
-set_global_assignment -name VHDL_FILE rtl/Pokey/syncreset_enable_divider.vhd
-set_global_assignment -name VHDL_FILE rtl/Pokey/synchronizer.vhdl
-set_global_assignment -name VHDL_FILE rtl/Pokey/pokey_poly_17_9.vhdl
-set_global_assignment -name VHDL_FILE rtl/Pokey/pokey_poly_5.vhdl
-set_global_assignment -name VHDL_FILE rtl/Pokey/pokey_poly_4.vhdl
-set_global_assignment -name VHDL_FILE rtl/Pokey/pokey_noise_filter.vhdl
-set_global_assignment -name VHDL_FILE rtl/Pokey/pokey_keyboard_scanner.vhdl
-set_global_assignment -name VHDL_FILE rtl/Pokey/pokey_countdown_timer.vhdl
-set_global_assignment -name VHDL_FILE rtl/Pokey/pokey.vhdl
-set_global_assignment -name VHDL_FILE rtl/Pokey/latch_delay_line.vhdl
-set_global_assignment -name VHDL_FILE rtl/Pokey/delay_line.vhdl
-set_global_assignment -name VHDL_FILE rtl/Pokey/complete_address_decoder.vhdl
+set_global_assignment -name QIP_FILE rtl/pokey/pokey.qip

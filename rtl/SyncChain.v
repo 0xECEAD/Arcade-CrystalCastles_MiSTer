@@ -11,8 +11,6 @@ module SyncChain
    output IRQCLK
 );
 
-reg HBLANK2;
-
 always @(posedge clk or negedge reset_n)                 // ic's 7N 7M 7P 7R 7K 8J
 begin
    if (~reset_n)
@@ -20,7 +18,6 @@ begin
       hcount <= #1 9'b000000000;
       vcount <= #1 8'b00000000;
       HSYNC <= #1 1'b0;
-      HBLANK2 <= #1 1'b0;
    end
    else 
       if (ce5)
@@ -32,8 +29,8 @@ begin
          if (hcount==272-1) HSYNC <= #1 1'b1;
          if (hcount==304-1) HSYNC <= #1 1'b0;
 
-         if (hcount==260-1) HBLANK2 <= #1 1'b1;
-         if (hcount==8-1)   HBLANK2 <= #1 1'b0;
+         //if (hcount==260-1) HBLANK2 <= #1 1'b1;
+         //if (hcount==8-1)   HBLANK2 <= #1 1'b0;
       end
 end
 

@@ -191,34 +191,34 @@ endmodule
 
 module PokeyW
 (
-   input            clk, 
-   input            rst_n,
-   input  [3:0]   ad,
-   input            cs,
-   input            we,
-   input  [7:0]   data_to_pokey,
-   output [7:0]   data_from_pokey,
-
-   output [5:0]   snd,
-   input  [7:0]   p
+   input clk, 
+   input ce,
+   input rst_n,
+   input [3:0] ad,
+   input cs,
+   input we,
+   input [7:0]  data_to_pokey,
+   output [7:0] data_from_pokey,
+   output [5:0] snd,
+   input  [7:0] p
 );
 
 wire [3:0] ch0,ch1,ch2,ch3;
 pokey core 
 (
-   .RESET_N(rst_n),
-   .CLK(clk),
-   .ADDR(ad),
-   .DATA_IN(data_to_pokey),
-   .DATA_OUT(data_from_pokey),
-   .WR_EN(we & cs),
-   .ENABLE_179(1'b1),
-   .POT_IN(~p),
+   .reset_n(rst_n),
+   .clk(clk), .ce(ce),
+   .addr(ad),
+   .data_in(data_to_pokey),
+   .data_out(data_from_pokey),
+   .wr_en(we & cs),
+   .enable_179(1'b1),
+   .pot_in(~p),
    
-   .CHANNEL_0_OUT(ch0),
-   .CHANNEL_1_OUT(ch1),
-   .CHANNEL_2_OUT(ch2),
-   .CHANNEL_3_OUT(ch3)
+   .channel_0_out(ch0),
+   .channel_1_out(ch1),
+   .channel_2_out(ch2),
+   .channel_3_out(ch3)
 );
 assign snd = {2'b00,ch0}+{2'b00,ch1}+{2'b00,ch2}+{2'b00,ch3};
 endmodule

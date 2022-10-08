@@ -149,14 +149,13 @@ AutoIncrement ai
 
 
 reg [7:0] hs;
-wire HBLANK1 = HBLANK;     // TODO delay 4H  (16 pixels? )
 always @(posedge clk or negedge reset_n) 
 begin
    if(~reset_n)
         hs <= #1 8'b0000000;
    else if (~HSLDn)
         hs <= #1 BD;
-   else if(ce5 & ~VBLANK & ~HBLANK1)
+   else if(ce5 & ~VBLANK & ~HBLANK)
       begin
          if (PLAYER2)
             hs <= #1 hs - 8'b00000001;

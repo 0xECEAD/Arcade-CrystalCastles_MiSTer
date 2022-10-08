@@ -13,9 +13,6 @@ module AudioOutput
    output [7:0] SOUT
 );
 
-wire clk125 = ~clk & ce2Hd;    // use clock in combinatorial logic? use combinatorial logic as clock? bad design idea?
-
-
 wire cs_pokey3B = ~CIOn & ~BA[9];
 wire cs_pokey3D = ~CIOn & BA[9];
 
@@ -25,7 +22,8 @@ wire [7:0] rdt3B, rdt3D;
 
 PokeyW ic3D
 (
-   .clk(clk125),
+   .clk(clk),
+   .ce(ce2Hd),
    .rst_n(reset_n),
    .ad(BA[3:0]),
    .cs(cs_pokey3D),
@@ -38,7 +36,8 @@ PokeyW ic3D
    
 PokeyW ic3B
 (
-   .clk(clk125),
+   .clk(clk),
+   .ce(ce2Hd),
    .rst_n(reset_n),
    .ad(BA[3:0]),
    .cs(cs_pokey3B),
