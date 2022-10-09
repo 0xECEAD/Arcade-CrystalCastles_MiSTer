@@ -1,13 +1,14 @@
 # Crystal Castles
-Arcade port for MiSTer
+An FPGA implementation of the __Crystal Castles__ arcade hardware by __Atari__ for the MiSTer platform.
 <br>(work in progress)
 
 
 ## General Description
 Author: Enceladus<br>
 From: Atari 1983<br>
-Date: Aug-Sep 2022  <br>
+Date: Aug-Sep 2022<br>
 Version: v0.1 (playable)<br>
+SDRAM: no<br>
 
 ## Info
 Game Clock: 10 MHz<br>
@@ -18,15 +19,22 @@ VGA scan doubler working (forced_scandoubler=1 in mister.ini)<br>
 
 ## Known Issues
 Sprites sometime draw dirt on screen (left).<br>
-Garbage on screen when vertical scrolling.<br>
+Garbage on screen (bottom) when vertical scrolling.<br>
 In cocktail mode, the player 2 inverted screen is not positioned correctly and sprites are incorrect.<br>
 
 ## Controller
 This version uses an actual TrackBall connected to the SNAC connector.<br>
 USER_IN[0]=Jump/Start, USER_IN[1]=Coin Left. Both switch to GND.<br>
-USER_IN[2]=Vertical Quadrature encoder A,  USER_IN[3]=Vertical Quadrature encoder B,<br>
-USER_IN[4]=Horizontal Quadrature encoder A,  USER_IN[5]=Horizontal Quadrature encoder B.<br>
+USER_IN[2]=Vertical Quadrature encoder A, USER_IN[3]=Vertical Quadrature encoder B,<br>
+USER_IN[4]=Horizontal Quadrature encoder A, USER_IN[5]=Horizontal Quadrature encoder B.<br>
 
+## Credits, acknowledgments, and thanks
+- [__Enceladus__](https://github.com/0xecead): Core design and implementation.
+- Original 6502 core by Arlet Ottens, 65C02 extensions by David Banks and Ed Spittles.
+- Atari Pokey by Mark Watson (c) 2013 (VHDL), conversion to Verilog by (?).
+
+## Modifications
+- Pokey: Added clock-enable (CE), don't mix clock and combinatorial logic in an FPGA.
 
 
 # Quartus Version

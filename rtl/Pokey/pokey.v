@@ -6,6 +6,7 @@
 -- This applies for source and binary form and derived works.
 --
 -- Converted to Verilog from original VHDL
+-- Added clock-enable signal (ce), 2022 Enceladus
 --------------------------------------------------------------------------*/
 
 `timescale 1 ps / 1 ps
