@@ -23,18 +23,31 @@ Garbage on screen (bottom) when vertical scrolling.<br>
 In cocktail mode, the player 2 inverted screen is not positioned correctly and sprites are incorrect.<br>
 
 ## Controller
-This version uses an actual TrackBall connected to the SNAC connector.<br>
+This version can be played with an actual TrackBall connected to the SNAC connector (best experience!).<br>
 USER_IN[0]=Jump/Start, USER_IN[1]=Coin Left. Both switch to GND.<br>
 USER_IN[2]=Vertical Quadrature encoder A, USER_IN[3]=Vertical Quadrature encoder B,<br>
 USER_IN[4]=Horizontal Quadrature encoder A, USER_IN[5]=Horizontal Quadrature encoder B.<br>
+<br>
+Emulation of a TrackBall is also provided for digital joystick, analog joystick or mouse. <br>
+You can set the sensitivity for your device in the OSD menu.
+
 
 ## Credits, acknowledgments, and thanks
 - [__Enceladus__](https://github.com/0xecead): Core design and implementation.
 - Original 6502 core by Arlet Ottens, 65C02 extensions by David Banks and Ed Spittles.
 - Atari Pokey by Mark Watson (c) 2013 (VHDL), conversion to Verilog by (?).
+- Trackball Emulator based on work by [__Jim Gregory__](https://github.com/JimmyStones).
 
 ## Modifications
 - Pokey: Added clock-enable (CE), don't mix clock and combinatorial logic in an FPGA.
+- Trackball Emulator: Adopted for 4x Quadrature, Added option for a true TrackBall on the SNAC connector.
+
+## FPGA implementation
+- Created using original schematics, and insight from own tools and tests with a custom diagnostic rom.
+- TTL74 logic has been simplified, and re-engineered where necessary. 
+- 82S129 PROMs were replaced by their equivalent logic expressions.
+- Clock dividers were replaced with equivalent clock-enable signals. So the game clock (10MHz) only connects to clock inputs, and logic signals only connect to logic inputs (not clocks). This results in a cleaner FPGA synchronous design (citation needed).
+
 
 
 # Quartus Version

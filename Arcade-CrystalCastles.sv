@@ -216,10 +216,13 @@ assign VIDEO_ARY = (!ar) ? 12'd3 : 12'd0;
 localparam CONF_STR = {
 	"A.CrystalCastles;;",
 	"-;",
-	"O[122:121],Aspect ratio,Original,Full Screen,[ARC1],[ARC2];",
-	"O1,WatchDog,Disable,Enable;",
-	"O2,Self Test Mode,Off,On;",
-	"O3,Cabinet,Upright,Cocktail;",
+	"O[122:121],Aspect ratio,Original,Full Screen,[ARC1],[ARC2];",          // status[122:121]
+	"O1,WatchDog,Disable,Enable;",                                          // status[1]
+	"O2,Self Test Mode,Off,On;",                                            // status[2]
+	"O3,Cabinet,Upright,Cocktail;",                                         // status[3]
+	"-;",
+	"O45,TrackBall,Joystick Digital,Joystick Analog,Mouse,SNAC;",           // status[5:4]
+	"O67,Sensitivity,25%,50%,100%,200%;",                                   // status[7:6]
 	"-;",
 	"R0,Reset;",
 	"J1,Jump/Start 1,Jump/Start 2,Coin Left,Coin Right,Coin Aux,Slam;",
@@ -234,6 +237,8 @@ wire   [1:0] buttons;
 wire [127:0] status;
 wire  [21:0] gamma_bus;
 wire  [15:0] joystick_0;
+wire [15:0] joystick_l_analog_0;
+wire [24:0]	ps2_mouse;
 
 hps_io #(.CONF_STR(CONF_STR)) hps_io
 (
@@ -250,7 +255,9 @@ hps_io #(.CONF_STR(CONF_STR)) hps_io
 	.status(status),
 	.status_menumask({direct_video}),
 	
-	.joystick_0(joystick_0)
+	.joystick_0(joystick_0),
+	.joystick_l_analog_0(joystick_l_analog_0),
+	.ps2_mouse(ps2_mouse)   
 );
 
 ///////////////////////   CLOCKS   ///////////////////////////////
@@ -285,15 +292,42 @@ arcade_video #(256,9) arcade_video
 	.fx(3'b000)
 );
 
-wire m_startjump1  = joystick_0[4];
+wire m_startjump1  = joystick_0[4] | ps2_mouse[0] | tb1JMP;
 wire m_startjump2  = joystick_0[5];
-wire m_coin1p   = joystick_0[6];
+wire m_coin1p   = joystick_0[6] | tb1COIN;
 wire m_coin2p   = joystick_0[7];
 wire m_coinAux  = joystick_0[8];
 wire m_slam  = joystick_0[9];
 
 wire LIGHTBULB;
 wire reset = RESET | status[0] | buttons[1];
+
+assign USER_OUT = { 1'b0, 1'b1, 1'b1, 1'b1, 1'b1, 1'b1, 1'b1 };
+wire tb1JMP = ~USER_IN[0];
+wire tb1COIN = ~USER_IN[1];
+wire tb1VD = USER_IN[2];
+wire tb1VC = USER_IN[3];
+wire tb1HD = USER_IN[4];
+wire tb1HC = USER_IN[5];
+wire tbeVD, tbeVC, tbeHD, tbeHC;
+
+
+TrackballEmu tbemu
+(
+	.clk(clk_sys),
+	.joystick_digital(joystick_0[3:0]),
+	.joystick_analog(joystick_l_analog_0),
+	.ps2_mouse(ps2_mouse),
+   
+	.mode(status[5:4]),
+	.sensitivity(status[7:6]),
+   
+	.v_dir_in(tb1VD), .v_clk_in(tb1VC),
+	.h_dir_in(tb1HD),	.h_clk_in(tb1HC),
+
+	.v_dir_out(tbeVD), .v_clk_out(tbeVC),
+	.h_dir_out(tbeHD), .h_clk_out(tbeHC)
+);
 
 
 CCastles ccastles
@@ -315,14 +349,10 @@ CCastles ccastles
 	.VSYNC(VSync),
 
    .SOUT(AOUT),
-
 	.RGBout(rgb),
    
-	.USER_IN(USER_IN),
-	.USER_OUT(USER_OUT)
-   
-   //.DEBUG_BA(DEBUG_BA),
-   //.DEBUG_RW(DEBUG_RW)
+	.tb1VD(tbeVD), .tb1VC(tbeVC), 
+   .tb1HD(tbeHD), .tb1HC(tbeHC)
 );
 
 reg [1:0] cnt;

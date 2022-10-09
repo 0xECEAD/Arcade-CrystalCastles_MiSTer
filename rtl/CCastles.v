@@ -25,9 +25,8 @@ module CCastles
    // Sound
    output [7:0]  SOUT,
 
-   // User Port
-   input   [6:0] USER_IN,
-   output  [6:0] USER_OUT
+   // TrackBall
+   input tb1VD,tb1VC,tb1HD,tb1HC   
 );
 
 
@@ -93,7 +92,7 @@ MicroProcessor cpu
 
 
 wire [7:0] rom_to_cpu, sram_to_cpu, bmr_to_cpu, dram_to_cpu, nvram_to_cpu, pokey_to_cpu, leta_to_cpu;
-wire [7:0] playerSwitches = { ~STARTJMP2, ~(STARTJMP1|tb1JMP), VBLANK, ~SELFTEST, ~SLAM, ~COINA, ~(COINL|tb1COIN), ~COINR};         // ic11C
+wire [7:0] playerSwitches = { ~STARTJMP2, ~STARTJMP1, VBLANK, ~SELFTEST, ~SLAM, ~COINA, ~COINL, ~COINR};         // ic11C
 
 always @(posedge clk) 
 begin
@@ -269,8 +268,6 @@ MotionObjectBuffer mob
    .MPI(MPI), .MV(MV)
 );
 
-
-wire tb1VD,tb1VC,tb1HD,tb1HC;
 LETA tb
 (
    .clk(clk), .reset_n(reset_n),
@@ -334,15 +331,6 @@ CoinCountOutput cco
    .RECALLn(RECALLn), .STORE(STORE),
    .STARTLED2(STARTLED2), .LIGHTBULB(LIGHTBULB)
 );
-
-
-assign USER_OUT = { 1'b0, 1'b1, 1'b1, 1'b1, 1'b1, 1'b1, 1'b1 };
-wire tb1JMP = ~USER_IN[0];
-wire tb1COIN = ~USER_IN[1];
-assign tb1VD = USER_IN[2];
-assign tb1VC = USER_IN[3];
-assign tb1HD = USER_IN[4];
-assign tb1HC = USER_IN[5];
 
 assign RGBout = HBLANK | VBLANK ? 9'b000000000 : rgb_data; 
 

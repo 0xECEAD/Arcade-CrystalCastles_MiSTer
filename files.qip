@@ -22,6 +22,7 @@ set_global_assignment -name VERILOG_FILE rtl/AutoIncrement.v
 set_global_assignment -name VERILOG_FILE rtl/NonVolatileRam.v
 set_global_assignment -name VERILOG_FILE rtl/ColorMemory.v
 
+set_global_assignment -name VERILOG_FILE rtl/TrackballEmu.v
 set_global_assignment -name VERILOG_FILE rtl/SupportChips.v
 set_global_assignment -name VERILOG_FILE rtl/cpu_65c02.v
 set_global_assignment -name VERILOG_FILE rtl/alu.v
