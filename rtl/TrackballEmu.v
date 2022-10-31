@@ -41,8 +41,8 @@ reg [1:0] vstate, hstate;
 always @(posedge clk)
 begin
    
-   reg updatex = 1'b0;
-   reg updatey = 1'b0;
+   reg updatex;
+   reg updatey;
    
    case (mode)
       2'b00 :           // digital joystick
@@ -57,7 +57,7 @@ begin
                begin
                   hdir <= 1'b0;
                   move_x = 8'd16;
-                  updatex = 1'b1;
+                  updatex <= 1'b1;
                end
 
                // Left
@@ -65,7 +65,7 @@ begin
                begin
                   hdir <= 1'b1;
                   move_x = 8'd16;
-                  updatex = 1'b1;
+                  updatex <= 1'b1;
                end
 
                // Down
@@ -73,7 +73,7 @@ begin
                begin
                   vdir <= 1'b1;
                   move_y = 8'd16;
-                  updatey = 1'b1;
+                  updatey <= 1'b1;
                end
 
                // Up
@@ -81,7 +81,7 @@ begin
                begin
                   vdir <= 1'b0;
                   move_y = 8'd16;
-                  updatey = 1'b1;
+                  updatey <= 1'b1;
                end
             end
          end
@@ -99,7 +99,7 @@ begin
                   hdir <= joystick_analog[7];
                   move_x = {1'b0, joystick_analog[7] ? -joystick_analog[6:0] : joystick_analog[6:0]};
                   if (move_x < 10) move_x = 0;
-                  updatex = 1'b1;
+                  updatex <= 1'b1;
                end
 
                // Vertical
@@ -109,7 +109,7 @@ begin
                   move_y = {1'b0, joystick_analog[15] ? -joystick_analog[14:8] : joystick_analog[14:8]};
                   if (move_y < 10)
                      move_y = 0;
-                  updatey = 1'b1;
+                  updatey <= 1'b1;
                end
             end
          end
@@ -124,8 +124,8 @@ begin
                vdir <= ps2_mouse[5];  // sign Y
                move_x = ps2_mouse[4] ? -ps2_mouse[15:8] : ps2_mouse[15:8];
                move_y = ps2_mouse[5] ? -ps2_mouse[23:16] : ps2_mouse[23:16];
-               updatex = 1'b1;
-               updatey = 1'b1;
+               updatex <= 1'b1;
+               updatey <= 1'b1;
             end
          end
          

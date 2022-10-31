@@ -173,7 +173,7 @@ module cram82S09
    input [8:0] din,
    output reg [8:0] dout
 );
-reg [8:0] mem [0:32];
+reg [8:0] mem [0:31];
 
 always @(posedge clk) 
 begin

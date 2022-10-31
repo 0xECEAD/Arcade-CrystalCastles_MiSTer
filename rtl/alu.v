@@ -54,10 +54,10 @@ wire adder_CI = (right | (op[3:2] == 2'b11)) ? 1'b0 : CI;
 // F5MUX.
 always @*  begin
 	case( op[1:0] )
-	    2'b00: temp_logic = AI | BI;
-	    2'b01: temp_logic = AI & BI;
-	    2'b10: temp_logic = AI ^ BI;
-	    2'b11: temp_logic = AI;
+	    2'b00: temp_logic = {1'b0, AI | BI};
+	    2'b01: temp_logic = {1'b0, AI & BI};
+	    2'b10: temp_logic = {1'b0, AI ^ BI};
+	    2'b11: temp_logic = {1'b0, AI};
 	endcase
 
 	if( right )
@@ -87,8 +87,8 @@ wire temp_HC = temp_l[4] | HC9;
 // perform the addition as 2 separate nibble, so we get
 // access to the half carry flag
 always @* begin
-	temp_l = temp_logic[3:0] + temp_BI[3:0] + adder_CI;
-	temp_h = temp_logic[8:4] + temp_BI[7:4] + temp_HC;
+	temp_l = temp_logic[3:0] + temp_BI[3:0] + {3'b0, adder_CI};
+	temp_h = temp_logic[8:4] + temp_BI[7:4] + {3'b0, temp_HC};
 end
 
 // calculate the flags 

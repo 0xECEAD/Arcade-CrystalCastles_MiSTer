@@ -71,7 +71,7 @@ end
    
 always @(*)     // ic9A
 begin
-   AR <= PLAYER2 ? { data_ic9D[0], data_ic9B[0], data_ic9C[0] } : { data_ic9D[3], data_ic9B[3], data_ic9C[3] };
+   AR = PLAYER2 ? { data_ic9D[0], data_ic9B[0], data_ic9C[0] } : { data_ic9D[3], data_ic9B[3], data_ic9C[3] };
 end
 
 endmodule

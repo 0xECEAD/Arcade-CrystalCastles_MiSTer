@@ -19,6 +19,7 @@ begin
    q <= sum[3:0];
 end
    
-assign addr = { q ^ PLAYER2, ~CK1 ^ PLAYER2 };              // ic8F
+wire [3:0] p4 = {4{PLAYER2} };
+assign addr = { q ^ p4, ~CK1 ^ PLAYER2 };              // ic8F
 
 endmodule
