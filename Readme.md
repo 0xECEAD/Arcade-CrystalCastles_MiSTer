@@ -6,21 +6,20 @@ An FPGA implementation of the __Crystal Castles__ arcade hardware by __Atari__ f
 ## General Description
 Author: Enceladus<br>
 From: Atari 1983<br>
-Date: Aug-Sep 2022<br>
-Version: v0.1 (playable)<br>
+Date: Aug-Nov 2022<br>
+Version: v1.0a (playable)<br>
 SDRAM: no<br>
 
 ## Info
 Game Clock: 10 MHz<br>
 Pixel Clock: 5 Mhz<br>
-Horizontal: counter 320, visible 256, hsync => 15.625 kHz<br>
+Horizontal: counter 320, visible 252, hsync => 15.625 kHz<br>
 Vertical: counter 256, visible 232, vsync => 61.03 Hz<br>
 VGA scan doubler working (forced_scandoubler=1 in mister.ini)<br>
 
 ## Known Issues
-Sprites sometime draw dirt on screen (left).<br>
 Garbage on screen (bottom) when vertical scrolling.<br>
-In cocktail mode, the player 2 inverted screen is not positioned correctly and sprites are incorrect.<br>
+In cocktail mode, the player 2 upside down screen and sprites are not positioned correctly.<br>
 
 ## Controller
 This version can be played with an actual TrackBall connected to the SNAC connector (best experience!).<br>
@@ -39,7 +38,7 @@ You can set the sensitivity for your device in the OSD menu.
 - Trackball Emulator based on work by [__Jim Gregory__](https://github.com/JimmyStones).
 
 ## Modifications
-- Pokey: Added clock-enable (CE), don't mix clock and combinatorial logic in an FPGA.
+- Pokey: Added clock-enable (CE) to make clock divider redundant.
 - Trackball Emulator: Adopted for 4x Quadrature, Added option for a true TrackBall on the SNAC connector.
 
 ## FPGA implementation

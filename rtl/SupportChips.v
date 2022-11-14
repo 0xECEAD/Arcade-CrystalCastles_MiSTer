@@ -183,6 +183,10 @@ begin
       dout <= mem[addr];
 end
 
+initial begin
+   $readmemh("cram.rom", mem);         // initial colors at boot
+end
+
 endmodule   
 
 
