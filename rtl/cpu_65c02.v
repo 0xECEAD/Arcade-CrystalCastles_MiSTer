@@ -401,7 +401,7 @@ always @*
  */
 always @(posedge clk)
     if( RDY )
-        PC <= PC_temp + PC_inc;
+        PC <= PC_temp + {15'h0, PC_inc };
 
 /*
  * Address Generator
@@ -665,7 +665,7 @@ always @*
         REG :   alu_op = op;
 
         DECODE,
-        ABS1:   alu_op = 1'bx;
+        ABS1:   alu_op = 4'bx;
 
         PUSH1,
         BRK0,

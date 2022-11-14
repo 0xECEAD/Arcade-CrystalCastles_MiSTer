@@ -4,7 +4,7 @@ module NonVolatileRam
    input NVRAMn, BRWn,
    input [7:0] BA,
 
-   input DCOKn, STORE, RECALLn, SIREn,
+   input STORE, RECALLn, SIREn,
    
    input [7:0] data_to_nvram,
    output [7:0] data_from_nvram

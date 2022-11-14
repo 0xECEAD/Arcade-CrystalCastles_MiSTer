@@ -39,7 +39,7 @@ Clock clkgen
    .ce2Hd(ce2Hd), .ce2Hd2(ce2Hd2), .ce2Hd3(ce2Hd3), .ce2Hd4(ce2Hd4), .ce2Hd5(ce2Hd5)
 );
 
-wire IRQCLK;
+wire IRQCLK, HBLANK0, HBLANK1, HBLANK2;
 wire [8:0] hc;
 wire [7:0] vc;
 SyncChain sc
@@ -47,7 +47,7 @@ SyncChain sc
    .clk(clk), .reset_n(reset_n), .ce5(ce5),
    
    .hcount(hc), .vcount(vc),
-   .HSYNC(HSYNC), .HBLANK(HBLANK),
+   .HSYNC(HSYNC), .HBLANK0(HBLANK0), .HBLANK1(HBLANK1), .HBLANK2(HBLANK2),
    .VSYNC(VSYNC), .VBLANK(VBLANK),
    .IRQCLK(IRQCLK)
 );
@@ -155,7 +155,6 @@ AutoIncrement ai
 
 
 reg [7:0] hs;
-wire HBLANK1 = HBLANK;     // TODO delay 4H  (16 pixels? )
 always @(posedge clk or negedge reset_n) 
 begin
    if(~reset_n)
@@ -172,22 +171,29 @@ begin
 end
 
 reg [7:0] vs;
+reg [7:0] vi;
 reg HSYNCd;
 always @(posedge clk or negedge reset_n) 
 begin
    if(~reset_n)
-        vs <= #1 8'b0000000;
+      begin
+        vs <= #1 8'h00;
+        vi <= #1 8'h18;
+      end
    else if (~VSLDn)
-        vs <= #1 BD;
-   else 
+        vi <= #1 BD;
+   else
+      if (VBLANK)
+         vs <= vi;
+      else 
       begin
          HSYNCd <= #1 HSYNC;
-         if (HSYNCd & ~HSYNC & ~VBLANK)
+         if (HSYNCd & ~HSYNC)
          begin
             if (PLAYER2)
-               vs <= #1 vs - 8'b00000001;
+               vs <= #1 vs - 8'd1;
             else
-               vs <= #1 vs + 8'b00000001;
+               vs <= #1 vs + 8'd1;
             end
       end
 end
@@ -393,7 +399,7 @@ assign tb1VC = USER_IN[3];
 assign tb1HD = USER_IN[4];
 assign tb1HC = USER_IN[5];
 
-assign RGBout = HBLANK | VBLANK ? 9'b000000000 : rgb_data; 
-
+assign RGBout = HBLANK2 | VBLANK ? 9'b000000000 : rgb_data; 
+assign HBLANK = HBLANK2;
 endmodule
 

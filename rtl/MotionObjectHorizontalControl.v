@@ -11,7 +11,7 @@ begin
    if (~LD2n & ce5) 
       addr2 <= #1 SR[15:8];
    else if (~CL2n & ce5) 
-      addr2 <= #1 8'd6;
+      addr2 <= #1 8'd0;
    else if (ce5) 
       addr2 <= #1 addr2 + 8'b00000001;
 end
@@ -22,7 +22,7 @@ begin
    if (~LD1n & ce5) 
       addr1 <= #1 SR[15:8];
    else if (~CL1n & ce5) 
-      addr1 <= #1 8'd6;
+      addr1 <= #1 8'd0;
    else if (ce5) 
       addr1 <= #1 addr1 + 8'b00000001;
 end

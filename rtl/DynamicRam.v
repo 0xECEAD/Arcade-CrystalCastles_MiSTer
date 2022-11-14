@@ -33,7 +33,6 @@ module DynamicRam
 
    input [7:0] hs,
    input [7:0] vs,
-   input PLAYER2,
    output reg [3:0] BIT
 );
 
