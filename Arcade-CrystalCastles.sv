@@ -240,11 +240,27 @@ wire  [15:0] joystick_0;
 wire [15:0] joystick_l_analog_0;
 wire [24:0]	ps2_mouse;
 
+wire        ioctl_download;
+wire  [7:0] ioctl_index;
+wire        ioctl_wr;
+wire [15:0] ioctl_addr;
+wire  [7:0] ioctl_dout;
+
+
 hps_io #(.CONF_STR(CONF_STR)) hps_io
 (
 	.clk_sys(clk_sys),
 	.HPS_BUS(HPS_BUS),
 	.EXT_BUS(),
+
+	.ioctl_download(ioctl_download),
+	.ioctl_index(ioctl_index),
+	.ioctl_wr(ioctl_wr),
+	.ioctl_addr(ioctl_addr),
+	.ioctl_dout(ioctl_dout),
+	//.ioctl_din(ioctl_din),
+	//.ioctl_upload(ioctl_upload),
+	//.ioctl_wait(ioctl_wait),
 
 	.forced_scandoubler(forced_scandoubler),
 	.gamma_bus(gamma_bus),
@@ -300,7 +316,8 @@ wire m_coinAux  = joystick_0[8];
 wire m_slam  = joystick_0[9];
 
 wire LIGHTBULB;
-wire reset = RESET | status[0] | buttons[1];
+wire rom_download = ioctl_download & ioctl_index == 8'd0;
+wire reset = RESET | status[0] | buttons[1] | rom_download;
 
 assign USER_OUT = { 1'b0, 1'b1, 1'b1, 1'b1, 1'b1, 1'b1, 1'b1 };
 wire tb1JMP = ~USER_IN[0];
@@ -352,7 +369,12 @@ CCastles ccastles
 	.RGBout(rgb),
    
 	.tb1VD(tbeVD), .tb1VC(tbeVC), 
-   .tb1HD(tbeHD), .tb1HC(tbeHC)
+   .tb1HD(tbeHD), .tb1HC(tbeHC),
+	
+	.dn_clk(clk_sys),
+	.dn_wr(ioctl_wr & rom_download),
+	.dn_addr(ioctl_addr[15:0]),
+	.dn_data(ioctl_dout)
 );
 
 reg [1:0] cnt;

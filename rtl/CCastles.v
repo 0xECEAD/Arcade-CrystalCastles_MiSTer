@@ -26,7 +26,12 @@ module CCastles
    output [7:0]  SOUT,
 
    // TrackBall
-   input tb1VD,tb1VC,tb1HD,tb1HC   
+   input tb1VD,tb1VC,tb1HD,tb1HC,
+	
+	// Rom Download
+	input dn_clk, dn_wr,
+	input [15:0] dn_addr,
+	input [7:0] dn_data
 );
 
 
@@ -70,7 +75,9 @@ ProgramMemory rom
    .address(BA[12:0]),
    .ROM2n(ROM2n), .ROM1n(ROM1n), .ROM0n(ROM0n),
    .BANK0n(BANK0n), .BANK1n(BANK1n),
-   .data_from_rom(rom_to_cpu)
+   .data_from_rom(rom_to_cpu),
+	
+	.dn_clk(dn_clk), .dn_wr(dn_wr), .dn_addr(dn_addr), .dn_data(dn_data)
 );
 
 wire [15:0] BA;
@@ -246,7 +253,9 @@ MotionObjectPictureRom mopr
    .clk(clk), .ce5(ce5), .ce2Hd5(ce2Hd5),
    .CK1(CK1), .PLAYER2(PLAYER2),
    .addrlo(MOVADR), .MATCHn(MATCHn), .SHFT0(SHFT0), .SHFT1(SHFT1),
-   .SR(SR), .AR(AR)
+   .SR(SR), .AR(AR),
+	
+	.dn_clk(dn_clk), .dn_wr(dn_wr), .dn_addr(dn_addr), .dn_data(dn_data)
 );
 
 MotionObjectVerticalControl movc

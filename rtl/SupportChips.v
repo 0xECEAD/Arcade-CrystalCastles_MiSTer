@@ -20,6 +20,27 @@ endmodule
 
 
 // --------------------------------------------------------------------------------------------------------------------------------
+// AM2764      8K x 8-Bit EPROM				Dual port version for Rom Downloader
+
+module dprom2764
+(
+   input a_clk,
+   input [12:0] a_addr,
+   output reg [7:0] a_data,
+	
+   input b_clk, b_we,
+   input [12:0] b_addr,
+   input [7:0] b_data
+);
+
+reg [7:0] mem [0:8191];
+
+always @(posedge a_clk) a_data <= mem[a_addr];
+always @(posedge b_clk) if (b_we) mem[b_addr] <= b_data;
+
+endmodule   
+
+// --------------------------------------------------------------------------------------------------------------------------------
 // TMS4416      16k x 4b DRAM (x4)     combined into single 32k x 8b SRAM
 
 module dram

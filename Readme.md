@@ -21,6 +21,12 @@ VGA scan doubler working (forced_scandoubler=1 in mister.ini)<br>
 Garbage on screen (bottom) when vertical scrolling.<br>
 In cocktail mode, the player 2 upside down screen and sprites are not positioned correctly.<br>
 
+## Todo
+Check sprite horizontal location on actual hardware. <br>
+Keep high-scores, copy NVRAM data back to the MiSTer. <br>
+Use logic analyser on Atari Patoto chip to check scrolling and memory addressing. <br>
+
+
 ## Controller
 This version can be played with an actual TrackBall connected to the SNAC connector (best experience!).<br>
 USER_IN[0]=Jump/Start, USER_IN[1]=Coin Left. Both switch to GND.<br>
@@ -53,7 +59,7 @@ You can set the sensitivity for your device in the OSD menu.
 Cores must be developed in **Quartus v17.0.x**. It's recommended to have updates, so it will be **v17.0.2**. Newer versions won't give any benefits to FPGA used in MiSTer, however they will introduce incompatibilities in project settings and it will make harder to maintain the core and collaborate with others. **So please stick to good old 17.0.x version.** You may use either Lite or Standard license.
 
 # Attention
-**TODO** ROMs are not included. In order to use this arcade, you need to provide the correct ROMs.
+ROMs are not included. In order to use this arcade, you need to provide the correct ROMs.
 
 To simplify the process .mra files are provided in the releases folder, that
 specifies the required ROMs with checksums. The ROMs .zip filename refers to the
@@ -64,7 +70,6 @@ information on how to setup and use the environment.
 
 Quickreference for folders and file placement:
 
-/_Arcade/<game name>.mra
-/_Arcade/cores/<game rbf>.rbf
-/_Arcade/mame/<mame rom>.zip
-/_Arcade/hbmame/<hbmame rom>.zip
+/_Arcade/Crystal Castles.mra
+/_Arcade/cores/CrystalCastles_20221119.rbf
+/_Arcade/mame/ccastles.zip

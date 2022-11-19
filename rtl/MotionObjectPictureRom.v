@@ -5,7 +5,11 @@ module MotionObjectPictureRom
    input MATCHn, SHFT0, SHFT1,
    input [15:0] SR,
    input [4:0] addrlo,
-   output reg [2:0] AR
+   output reg [2:0] AR,
+	
+	input dn_clk, dn_wr,
+	input [15:0] dn_addr,
+	input [7:0] dn_data
 );
 
 reg [7:0] picture;
@@ -16,6 +20,8 @@ end
 
 wire [12:0] addr = {picture, addrlo};
 wire [7:0] data_ic8D,data_ic8B;
+
+`ifdef RUNSIMULATION
 rom2764 #(.INIT_FILE("136022-106.8d.rom")) ic8D
 (
    .clk(clk), 
@@ -28,6 +34,36 @@ rom2764 #(.INIT_FILE("136022-107.8b.rom")) ic8B
    .addr(addr),
    .data(data_ic8B)
 );
+`else
+
+wire prog_rom8D_we = dn_wr & (dn_addr[15:13] == 3'd2);
+dprom2764 ic8D
+(
+   .a_clk(clk), 
+   .a_addr(addr),
+   .a_data(data_ic8D),
+	
+	.b_clk(dn_clk),
+	.b_we(prog_rom8D_we),
+	.b_addr(dn_addr[12:0]),
+	.b_data(dn_data)
+);
+
+wire prog_rom8B_we = dn_wr & (dn_addr[15:13] == 3'd3);
+dprom2764 ic8B
+(
+   .a_clk(clk), 
+   .a_addr(addr),
+   .a_data(data_ic8B),
+	
+	.b_clk(dn_clk),
+	.b_we(prog_rom8B_we),
+	.b_addr(dn_addr[12:0]),
+	.b_data(dn_data)
+);
+
+`endif
+
 
 wire [3:0] nib3 = MATCHn ? 4'b1111 : data_ic8D[3:0];
 wire [3:0] nib2 = MATCHn ? 4'b1111 : data_ic8B[7:4];
